@@ -9,12 +9,17 @@ export class FirebaseService implements OnModuleInit {
 
   onModuleInit() {
     if (getApps().length === 0) {
-      // Use the provided service account key to authenticate with Firebase
-      const serviceAccount = require('../../service-account.json');
+      let serviceAccount;
+      if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+        // Use environment variable for production (Coolify)
+        serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+      } else {
+        // Use local file for development
+        serviceAccount = require('../../service-account.json');
+      }
       
       this.app = initializeApp({
         credential: cert(serviceAccount),
-        // projectId: 'kid-learners',
       });
     } else {
       this.app = getApp();
