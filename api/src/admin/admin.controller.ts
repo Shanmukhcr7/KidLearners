@@ -1,6 +1,6 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { AdminService } from './admin.service';
-import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
+import { FirebaseAuthGuard } from '../firebase/firebase.guard';
 
 @Controller('admin')
 @UseGuards(FirebaseAuthGuard) // Further restricted by custom claims in a real app, but for now we rely on the guard
