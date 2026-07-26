@@ -1,39 +1,63 @@
-import type { Metadata } from "next";
-import { Inter, Poppins } from "next/font/google";
-import "./globals.css";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import type { Metadata } from 'next'
+import { Inter, Cormorant_Garamond } from 'next/font/google'
+import './globals.css'
+import { AuthProvider } from '@/contexts/AuthContext'
+import { Toaster } from 'react-hot-toast'
+import { SmoothScrollProvider } from '@/components/providers/SmoothScrollProvider'
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
+const inter = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+})
 
-const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-cormorant',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
-  title: "KidLearners | Empowering Kids with AI & Future-Ready Skills",
-  description: "KidLearners is a premium EdTech startup focused on teaching Artificial Intelligence and future-ready technology skills to children.",
-};
+  title: 'KidLearners | Empowering Kids with AI',
+  description: 'Learn Today, Lead Tomorrow. Interactive AI education platform for future-ready skills.',
+  openGraph: {
+    title: 'KidLearners',
+    description: 'Empowering Kids with AI & Future-Ready Skills',
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
+  }
+}
+
+import { LoadingOverlay } from '@/components/ui/LoadingOverlay'
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en" className={`${inter.variable} ${poppins.variable} scroll-smooth antialiased`}>
-      <body className="min-h-screen flex flex-col font-sans bg-background text-foreground selection:bg-primary-blue/20">
-        <Navbar />
-        <main className="flex-1 pt-20">
-          {children}
-        </main>
-        <Footer />
+    <html lang="en" className={`${inter.variable} ${cormorant.variable}`}>
+      <body className="antialiased min-h-screen relative bg-white text-slate-900 selection:bg-[#10B981] selection:text-white font-sans">
+        <LoadingOverlay />
+        <AuthProvider>
+          <SmoothScrollProvider>
+            {children}
+          </SmoothScrollProvider>
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              style: {
+                background: '#000000',
+                color: '#ffffff',
+                border: '1px solid #333333',
+                borderRadius: '8px',
+                fontWeight: 500,
+                fontFamily: 'var(--font-sans)',
+              },
+            }}
+          />
+        </AuthProvider>
       </body>
     </html>
-  );
+  )
 }

@@ -1,84 +1,171 @@
-import Link from 'next/link'
-import { Sparkles } from 'lucide-react'
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
+import { auth } from '@/lib/firebase/client'
+import { signInWithCustomToken } from 'firebase/auth'
 import { Button } from '@/components/ui/Button'
-import { login } from '@/app/auth/actions'
+import { Input } from '@/components/ui/Input'
+import { GoogleLogo, UserFocus } from '@phosphor-icons/react/dist/ssr'
+import Link from 'next/link'
+import { FadeIn } from '@/components/ui/Transitions'
+import { Preloader } from '@/components/ui/Preloader'
 
-export default function LoginPage({ searchParams }: { searchParams: { message: string } }) {
+export default function LoginPage() {
+  const router = useRouter()
+  const { loginWithGoogle } = useAuth()
+  const [loading, setLoading] = useState(false)
+  const [globalError, setGlobalError] = useState('')
+  const [loginMethod, setLoginMethod] = useState<'google' | 'student'>('google')
+  
+  // Student Login State
+  const [studentCode, setStudentCode] = useState('')
+  const [password, setPassword] = useState('')
+
+  const handleGoogleLogin = async () => {
+    setGlobalError('')
+    setLoading(true)
+    try {
+      await loginWithGoogle()
+      router.push('/dashboard')
+    } catch (err: any) {
+      setGlobalError(err.message || 'Failed to sign in with Google.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleStudentLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setGlobalError('')
+    setLoading(true)
+    
+    try {
+      const res = await fetch('/api/auth/student', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentCode, password })
+      })
+      
+      const data = await res.json()
+      
+      if (!res.ok) {
+        throw new Error(data.error || 'Login failed')
+      }
+      
+      await signInWithCustomToken(auth, data.token)
+      router.push('/dashboard')
+    } catch (err: any) {
+      setGlobalError(err.message || 'Invalid Student Code or Password.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4 relative overflow-hidden">
-      {/* Decorative background */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary-blue/20 rounded-full blur-[100px] z-0 pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-primary-green/20 rounded-full blur-[100px] z-0 pointer-events-none" />
+    <main className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-slate-900">
+      <Preloader />
 
-      <div className="w-full max-w-md relative z-10">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl">
+      {/* Minimal Header */}
+      <div className="absolute top-8 left-8">
+        <Link href="/">
+          <img src="/images/logo.jpg" alt="KidLearners" className="h-12 w-auto mix-blend-multiply" />
+        </Link>
+      </div>
+
+      <FadeIn className="w-full max-w-md">
+        <div className="bg-white border border-slate-200 shadow-md rounded-[16px] p-10 md:p-14">
           
-          <div className="flex justify-center mb-8">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="bg-primary-blue rounded-xl p-1.5 text-white shadow-sm">
-                <Sparkles className="w-5 h-5" />
+          <div className="mb-10 text-center md:text-left">
+            <h1 className="font-display text-4xl text-slate-900 mb-2">
+              Welcome
+            </h1>
+            <p className="text-slate-500 text-base font-sans">
+              Sign in or create an account to start learning.
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            {globalError && (
+              <div className="p-4 bg-red-50 border border-red-200 text-red-800 text-sm font-medium rounded-lg">
+                {globalError}
               </div>
-              <span className="text-xl font-bold font-heading tracking-tight text-slate-900 dark:text-white">
-                KidLearners
-              </span>
-            </Link>
-          </div>
-
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold font-heading text-slate-900 dark:text-white mb-2">Welcome Back</h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">Sign in to your account to continue learning</p>
-          </div>
-
-          <form className="flex flex-col gap-5">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" htmlFor="email">
-                Email Address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all outline-none"
-                placeholder="you@example.com"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1" htmlFor="password">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-blue focus:border-transparent transition-all outline-none"
-                placeholder="••••••••"
-              />
-            </div>
-
-            {searchParams?.message && (
-              <p className="text-sm text-red-500 text-center bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">
-                {searchParams.message}
-              </p>
             )}
 
-            <Button formAction={login} variant="primary" className="w-full mt-2 h-11">
-              Sign In
-            </Button>
-          </form>
+            <div className="flex bg-slate-100 p-1 rounded-lg">
+              <button
+                className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${loginMethod === 'google' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-900'}`}
+                onClick={() => setLoginMethod('google')}
+              >
+                Parents / Teachers
+              </button>
+              <button
+                className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${loginMethod === 'student' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-900'}`}
+                onClick={() => setLoginMethod('student')}
+              >
+                Students
+              </button>
+            </div>
 
-          <div className="mt-8 text-center text-sm text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 pt-6">
-            Don't have an account?{' '}
-            <Link href="/register" className="font-semibold text-primary-blue hover:underline">
-              Sign up
-            </Link>
+            {loginMethod === 'google' ? (
+              <Button
+                onClick={handleGoogleLogin}
+                className="w-full h-14 text-lg font-bold bg-white text-slate-900 border border-slate-200 hover:bg-slate-50 rounded-xl shadow-sm transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex items-center justify-center gap-3"
+                loading={loading}
+              >
+                {!loading && <GoogleLogo className="w-6 h-6" weight="bold" />}
+                Sign in with Google
+              </Button>
+            ) : (
+              <form onSubmit={handleStudentLogin} className="space-y-4 mt-4">
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1">Student Code</label>
+                  <Input 
+                    required 
+                    placeholder="e.g. STU-JO0001" 
+                    value={studentCode}
+                    onChange={e => setStudentCode(e.target.value.toUpperCase())}
+                    className="h-12"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1">Password</label>
+                  <Input 
+                    required 
+                    type="password" 
+                    placeholder="Enter temp password" 
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    className="h-12"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full h-14 text-lg font-bold bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] rounded-xl shadow-sm transition-all flex items-center justify-center gap-3 mt-6"
+                  loading={loading}
+                >
+                  {!loading && <UserFocus className="w-6 h-6" weight="bold" />}
+                  Login to Portal
+                </Button>
+              </form>
+            )}
+          </div>
+
+          <div className="mt-10 pt-8 border-t border-slate-200 text-center">
+            <p className="text-sm text-slate-500">
+              By signing in, you agree to our{' '}
+              <Link href="#" className="text-slate-900 font-bold hover:text-[var(--color-accent-blue)] transition-colors underline underline-offset-4">
+                Terms
+              </Link>
+              {' '}and{' '}
+              <Link href="#" className="text-slate-900 font-bold hover:text-[var(--color-accent-blue)] transition-colors underline underline-offset-4">
+                Privacy Policy
+              </Link>.
+            </p>
           </div>
         </div>
-      </div>
-    </div>
+      </FadeIn>
+    </main>
   )
 }
