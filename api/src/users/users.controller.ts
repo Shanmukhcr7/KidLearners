@@ -6,18 +6,18 @@ import { FirebaseAuthGuard } from '../firebase/firebase.guard';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get()
-  @UseGuards(FirebaseAuthGuard)
-  async getUsers(@Request() req: any) {
-    const role = req.user.role;
-    return this.usersService.getUsers(role);
-  }
-
   @Get('search')
   @UseGuards(FirebaseAuthGuard)
   async searchUsers(@Request() req: any, @Query('email') email: string) {
     const role = req.user.role;
     return this.usersService.searchUsersByEmail(email, role);
+  }
+
+  @Get()
+  @UseGuards(FirebaseAuthGuard)
+  async getUsers(@Request() req: any) {
+    const role = req.user.role;
+    return this.usersService.getUsers(role);
   }
 
   @Post('sync')
