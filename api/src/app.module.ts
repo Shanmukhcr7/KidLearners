@@ -11,9 +11,14 @@ import { TasksModule } from './tasks/tasks.module';
 import { ExamsModule } from './exams/exams.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
 import { LeaderboardsModule } from './leaderboards/leaderboards.module';
+import { GalleryModule } from './gallery/gallery.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [FirebaseModule, UsersModule, SchoolsModule, DemoModule, AdminModule, CoursesModule, TasksModule, ExamsModule, AuditLogsModule, LeaderboardsModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    FirebaseModule, UsersModule, SchoolsModule, DemoModule, AdminModule, CoursesModule, TasksModule, ExamsModule, AuditLogsModule, LeaderboardsModule, GalleryModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

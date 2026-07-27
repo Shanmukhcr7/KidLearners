@@ -8,7 +8,8 @@ import {
   Settings, 
   ShieldCheck,
   LogOut,
-  Mail
+  Mail,
+  Image as ImageIcon
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -75,9 +76,6 @@ export default function SuperAdminLayout({
                   <NavItem href="/admin/tasks" icon={<BarChart size={18} />} label="Tasks" active={pathname === "/admin/tasks"} />
                   <NavItem href="/admin/exams" icon={<BarChart size={18} />} label="Exams" active={pathname === "/admin/exams"} />
                   <NavItem href="/admin/questions" icon={<BarChart size={18} />} label="Question Bank" active={pathname === "/admin/questions"} />
-                </div>
-              </div>
-
               {/* Engagement */}
               <div>
                 <div className="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">Engagement</div>
@@ -86,6 +84,7 @@ export default function SuperAdminLayout({
                   <NavItem href="/admin/gamification" icon={<BarChart size={18} />} label="Gamification" active={pathname === "/admin/gamification"} />
                   <NavItem href="/admin/certificates" icon={<BarChart size={18} />} label="Certificates" active={pathname === "/admin/certificates"} />
                   <NavItem href="/admin/events" icon={<BarChart size={18} />} label="Events" active={pathname === "/admin/events"} />
+                  <NavItem href="/admin/gallery" icon={<ImageIcon size={18} />} label="Gallery" active={pathname === "/admin/gallery"} />
                 </div>
               </div>
 
