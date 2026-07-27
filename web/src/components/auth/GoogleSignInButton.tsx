@@ -34,6 +34,10 @@ export default function GoogleSignInButton() {
 
         if (response.ok) {
           const data = await response.json();
+          
+          // CRITICAL: Force refresh the token so the frontend sees the custom claims (role) set by the backend!
+          await user.getIdToken(true);
+
           // Route based on role
           if (data.role === "school_admin") {
             router.push("/school");
