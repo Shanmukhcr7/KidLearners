@@ -37,10 +37,10 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-slate-200">
+      <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 shrink-0">
-            <img src="/loki.jpg" alt="KidLearners Logo" className="h-8 w-auto object-contain" />
+            <img src="/loki.jpg" alt="KidLearners Logo" className="h-8 max-w-[120px] object-contain" />
             <span className="font-bold text-xl tracking-tight text-slate-900 hidden sm:block">KidLearners</span>
           </Link>
           
