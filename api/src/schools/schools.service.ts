@@ -130,6 +130,35 @@ export class SchoolsService {
     }
   }
 
+  async getMyStats(role: string, schoolId: string) {
+    if (role !== 'school_admin' || !schoolId) {
+      throw new UnauthorizedException('Only School Admins can view their school stats');
+    }
+    const db = this.firebaseService.getFirestore();
+    
+    // 1. Get total students in this school
+    const studentsSnapshot = await db.collection('users')
+      .where('role', '==', 'student')
+      .where('schoolId', '==', schoolId)
+      .get();
+      
+    let totalXp = 0;
+    studentsSnapshot.forEach((doc: any) => {
+      const xp = doc.data().xp || 0;
+      totalXp += xp;
+    });
+    const avgXp = studentsSnapshot.size > 0 ? Math.round(totalXp / studentsSnapshot.size) : 0;
+
+    // 2. Get active courses (assuming courses are global for now)
+    const coursesSnapshot = await db.collection('courses').where('status', '==', 'Active').get();
+
+    return {
+      totalStudents: studentsSnapshot.size,
+      averageXp: avgXp,
+      activeCourses: coursesSnapshot.size,
+    };
+  }
+
   async updateFeatures(schoolId: string, features: any, requestUserRole: string) {
     if (requestUserRole !== 'super_admin') {
       throw new UnauthorizedException('Only Super Admins can configure platform features');

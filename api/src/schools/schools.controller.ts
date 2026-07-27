@@ -18,6 +18,14 @@ export class SchoolsController {
     return this.schoolsService.getStats();
   }
 
+  @Get('my-stats')
+  @UseGuards(FirebaseAuthGuard)
+  async getMyStats(@Request() req: any) {
+    const role = req.user.role;
+    const schoolId = req.user.schoolId;
+    return this.schoolsService.getMyStats(role, schoolId);
+  }
+
   @Get()
   @UseGuards(FirebaseAuthGuard)
   async getSchools(@Request() req: any) {
