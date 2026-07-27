@@ -13,7 +13,7 @@ export default function AdminSchoolsPage() {
     async function fetchSchools() {
       try {
         const token = await auth.currentUser?.getIdToken();
-        const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + "/admin/schools", {
+        const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + "/schools", {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
@@ -37,10 +37,31 @@ export default function AdminSchoolsPage() {
     return () => unsubscribe();
   }, []);
 
-  const handleCreateSchool = () => {
-    // Need backend POST endpoint for full functionality.
-    // For now just close the modal.
-    setShowModal(false);
+  const handleCreateSchool = async () => {
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + "/schools", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify(newSchool)
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        alert(`School ${data.school.name} created! Admin assigned: ${data.adminAssigned ? "Yes" : "No"}`);
+        setShowModal(false);
+        // Simply reload to fetch again
+        window.location.reload();
+      } else {
+        alert("Failed to create school.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error creating school.");
+    }
   };
 
   return (

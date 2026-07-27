@@ -12,7 +12,7 @@ export default function AdminUsersPage() {
     async function fetchUsers() {
       try {
         const token = await auth.currentUser?.getIdToken();
-        const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + "/admin/users", {
+        const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + "/users", {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {

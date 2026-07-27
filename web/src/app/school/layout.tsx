@@ -21,10 +21,8 @@ export default function SchoolLayout({
       <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row font-sans">
         {/* Sidebar - Professional Style (Desktop Only) */}
         <aside className="hidden md:flex w-64 bg-white border-r border-gray-200 flex-col z-10 sticky top-0 h-screen">
-          <div className="h-16 flex items-center px-6 border-b border-gray-200">
-            <div className="w-8 h-8 bg-[var(--color-navy)] rounded-md flex items-center justify-center text-white font-bold mr-3">
-              K
-            </div>
+          <div className="h-16 flex items-center gap-3 px-6 border-b border-gray-200">
+            <img src="/loki.jpg" alt="KidLearners Logo" className="w-8 h-8 rounded-md object-cover shadow-sm" />
             <h1 className="text-xl font-bold text-gray-900 tracking-tight">School Portal</h1>
           </div>
 

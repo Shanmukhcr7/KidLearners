@@ -21,9 +21,10 @@ export default function SuperAdminLayout({
       <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans">
         {/* Sidebar - Super Admin Dark Mode (Desktop Only) */}
         <aside className="hidden md:flex w-64 bg-slate-900 border-r border-slate-800 flex-col z-10 sticky top-0 h-screen text-slate-300">
-          <div className="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-950">
-            <ShieldCheck size={24} className="text-blue-500 mr-3" />
-            <h1 className="text-xl font-bold text-white tracking-tight">System Admin</h1>
+          {/* Sidebar Header */}
+          <div className="h-16 flex items-center gap-3 px-6 border-b border-slate-800">
+            <img src="/loki.jpg" alt="KidLearners Logo" className="w-8 h-8 rounded-md object-cover" />
+            <span className="font-bold text-lg tracking-tight text-white">KidLearners HQ</span>
           </div>
 
           <nav className="flex-1 px-4 py-6 space-y-1">

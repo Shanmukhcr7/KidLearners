@@ -38,6 +38,22 @@ export class UsersService {
     }
   }
 
+  async getUsers(requestUserRole: string) {
+    if (requestUserRole !== 'super_admin') {
+      throw new UnauthorizedException('Only Super Admins can view all users');
+    }
+
+    const db = this.firebaseService.getFirestore();
+    const snapshot = await db.collection('users').get();
+    
+    const users: any[] = [];
+    snapshot.forEach((doc: any) => {
+      users.push({ id: doc.id, ...doc.data() });
+    });
+    
+    return users;
+  }
+
   async setRole(uid: string, role: string) {
     // SuperAdmin only route
     const auth = this.firebaseService.getAuth();

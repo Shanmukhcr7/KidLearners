@@ -1,10 +1,17 @@
-import { Controller, Post, UseGuards, Request, Body, Put } from '@nestjs/common';
+import { Controller, Post, Get, UseGuards, Request, Body, Put } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { FirebaseAuthGuard } from '../firebase/firebase.guard';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get()
+  @UseGuards(FirebaseAuthGuard)
+  async getUsers(@Request() req: any) {
+    const role = req.user.role;
+    return this.usersService.getUsers(role);
+  }
 
   @Post('sync')
   @UseGuards(FirebaseAuthGuard)

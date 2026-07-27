@@ -11,6 +11,17 @@ export class SchoolsService {
     }
 
     const db = this.firebaseService.getFirestore();
+    const auth = this.firebaseService.getAuth();
+    
+    // Try to find the user by email
+    let userRecord = null;
+    try {
+      userRecord = await auth.getUserByEmail(adminEmail);
+    } catch (e) {
+      // User doesn't exist yet, that's okay, we can just create the school
+      console.warn(`Admin email ${adminEmail} not found in Firebase Auth`);
+    }
+
     const schoolRef = db.collection('schools').doc();
     
     const newSchool = {
@@ -24,7 +35,23 @@ export class SchoolsService {
     };
 
     await schoolRef.set(newSchool);
-    return newSchool;
+
+    // If user exists, upgrade them immediately
+    if (userRecord) {
+      const uid = userRecord.uid;
+      
+      // 1. Update Custom Claims in Firebase Auth
+      await auth.setCustomUserClaims(uid, { role: 'school_admin', schoolId: newSchool.id });
+      
+      // 2. Update Firestore user document
+      // We use set with merge: true in case the user hasn't completed their first login sync yet
+      await db.collection('users').doc(uid).set({
+        role: 'school_admin',
+        schoolId: newSchool.id
+      }, { merge: true });
+    }
+
+    return { school: newSchool, adminAssigned: !!userRecord };
   }
 
   async getSchools(requestUserRole: string) {

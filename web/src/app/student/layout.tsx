@@ -15,9 +15,7 @@ export default function DashboardLayout({
         <aside className="hidden md:flex w-64 bg-white border-r-[4px] border-[var(--color-navy)] flex-col z-10 sticky top-0 h-screen">
           <div className="p-6 border-b-[4px] border-[var(--color-navy)] bg-[var(--color-primary)]">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white comic-border rounded-xl flex items-center justify-center text-xl font-bold text-[var(--color-navy)]">
-                K
-              </div>
+              <img src="/loki.jpg" alt="KidLearners Logo" className="w-10 h-10 comic-border rounded-xl object-cover" />
               <h1 className="text-2xl font-black tracking-tight text-[var(--color-navy)]">KidLearners</h1>
             </div>
           </div>
