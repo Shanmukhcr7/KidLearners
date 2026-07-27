@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException, Logger, NotFoundException } f
 import { ConfigService } from '@nestjs/config';
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { FirebaseService } from '../firebase/firebase.service';
-import { v4 as uuidv4 } from 'uuid';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class GalleryService {
@@ -32,7 +32,7 @@ export class GalleryService {
   async uploadImage(file: Express.Multer.File, title: string, uploadedBy: string) {
     try {
       const fileExtension = file.originalname.split('.').pop();
-      const uniqueFileName = `gallery/${uuidv4()}.${fileExtension}`;
+      const uniqueFileName = `gallery/${crypto.randomUUID()}.${fileExtension}`;
 
       // 1. Upload to Cloudflare R2
       const command = new PutObjectCommand({
@@ -84,6 +84,9 @@ export class GalleryService {
       }
 
       const data = doc.data();
+      if (!data) {
+        throw new NotFoundException('Image data is missing');
+      }
       
       // 1. Delete from R2
       if (data.r2Key) {
