@@ -5,9 +5,9 @@ import { FirebaseService } from '../firebase/firebase.service';
 export class ExamsService {
   constructor(private firebaseService: FirebaseService) {}
 
-  async createExam(title: string, duration: string, totalQuestions: number, requestUserRole: string) {
-    if (requestUserRole !== 'super_admin') {
-      throw new UnauthorizedException('Only Super Admins can create platform-wide exams');
+  async createExam(title: string, duration: string, totalQuestions: number, requestUserRole: string, schoolId?: string) {
+    if (requestUserRole !== 'super_admin' && requestUserRole !== 'school_admin') {
+      throw new UnauthorizedException('Only admins can create exams');
     }
 
     const db = this.firebaseService.getFirestore();
@@ -19,6 +19,7 @@ export class ExamsService {
       duration,
       totalQuestions,
       status: 'Active',
+      schoolId: schoolId || 'global',
       createdAt: new Date(),
     };
 
@@ -26,9 +27,18 @@ export class ExamsService {
     return newExam;
   }
 
-  async getExams() {
+  async getExams(requestUserRole: string, requestUserSchoolId?: string) {
     const db = this.firebaseService.getFirestore();
-    const snapshot = await db.collection('exams').orderBy('createdAt', 'desc').get();
+    let query: any = db.collection('exams');
+
+    if (requestUserRole !== 'super_admin') {
+      if (!requestUserSchoolId) {
+        return [];
+      }
+      query = query.where('schoolId', 'in', [requestUserSchoolId, 'global']);
+    }
+
+    const snapshot = await query.orderBy('createdAt', 'desc').get();
     
     const exams: any[] = [];
     snapshot.forEach((doc: any) => {

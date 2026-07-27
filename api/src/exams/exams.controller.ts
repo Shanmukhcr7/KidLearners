@@ -8,14 +8,17 @@ export class ExamsController {
 
   @Post()
   @UseGuards(FirebaseAuthGuard)
-  async createExam(@Request() req: any, @Body() body: { title: string, duration: string, totalQuestions: number }) {
-    const role = req.user.role; 
-    return this.examsService.createExam(body.title, body.duration, body.totalQuestions, role);
+  async createExam(@Body() body: { title: string; duration: string; totalQuestions: number }, @Request() req: any) {
+    const role = req.user.role;
+    const schoolId = req.user.schoolId;
+    return this.examsService.createExam(body.title, body.duration, body.totalQuestions, role, schoolId);
   }
 
   @Get()
   @UseGuards(FirebaseAuthGuard)
-  async getExams() {
-    return this.examsService.getExams();
+  async getExams(@Request() req: any) {
+    const role = req.user.role;
+    const schoolId = req.user.schoolId;
+    return this.examsService.getExams(role, schoolId);
   }
 }

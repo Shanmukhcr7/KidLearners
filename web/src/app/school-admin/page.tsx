@@ -6,22 +6,42 @@ import { auth } from "@/utils/firebase";
 
 export default function SchoolAdminDashboard() {
   const [stats, setStats] = useState({
+    schoolName: "",
     totalStudents: 0,
     activeCourses: 0,
     averageXp: 0,
   });
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchMyStats() {
+    async function fetchData() {
       try {
-        const token = await auth.currentUser?.getIdToken();
-        const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + "/schools/my-stats", {
+        const user = auth.currentUser;
+        if (!user) return;
+        
+        const tokenResult = await user.getIdTokenResult();
+        const schoolId = tokenResult.claims.schoolId;
+        const token = tokenResult.token;
+
+        // Fetch Stats
+        const statsRes = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + "/schools/my-stats", {
           headers: { Authorization: `Bearer ${token}` }
         });
-        if (res.ok) {
-          const data = await res.json();
+        if (statsRes.ok) {
+          const data = await statsRes.json();
           setStats(data);
+        }
+
+        // Fetch Top Performers (Leaderboard)
+        if (schoolId) {
+          const leadRes = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + `/leaderboards/school/${schoolId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (leadRes.ok) {
+            const data = await leadRes.json();
+            setLeaderboard(data.slice(0, 3)); // Only take top 3
+          }
         }
       } catch (err) {
         console.error(err);
@@ -30,13 +50,15 @@ export default function SchoolAdminDashboard() {
       }
     }
     
-    fetchMyStats();
+    fetchData();
   }, []);
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Dashboard Overview</h1>
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+          {loading ? "Loading..." : (stats.schoolName || "Dashboard Overview")}
+        </h1>
         <p className="text-slate-500 mt-2">Welcome to your school's command center.</p>
       </div>
 
@@ -46,7 +68,7 @@ export default function SchoolAdminDashboard() {
           title="Total Enrolled Students" 
           value={loading ? "..." : stats.totalStudents.toString()} 
           icon={<Users size={24} />}
-          trend="+12% this month"
+          trend="Active"
           color="bg-blue-600"
           lightColor="bg-blue-50"
           textColor="text-blue-600"
@@ -55,7 +77,7 @@ export default function SchoolAdminDashboard() {
           title="Active Courses" 
           value={loading ? "..." : stats.activeCourses.toString()} 
           icon={<BookOpen size={24} />}
-          trend="3 new additions"
+          trend="Available"
           color="bg-purple-600"
           lightColor="bg-purple-50"
           textColor="text-purple-600"
@@ -64,7 +86,7 @@ export default function SchoolAdminDashboard() {
           title="Average Student XP" 
           value={loading ? "..." : stats.averageXp.toString()} 
           icon={<Trophy size={24} />}
-          trend="+85 XP this week"
+          trend="Avg Score"
           color="bg-amber-500"
           lightColor="bg-amber-50"
           textColor="text-amber-600"
@@ -94,27 +116,26 @@ export default function SchoolAdminDashboard() {
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <h3 className="text-lg font-bold text-slate-900 mb-4">Recent Leaderboard Top Performers</h3>
           <div className="space-y-4">
-             {/* We will fetch real activity here later, placeholder for now */}
-             <div className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg transition-colors">
-               <div className="flex items-center gap-3">
-                 <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center font-bold text-slate-600">A</div>
-                 <div>
-                   <div className="font-bold text-sm text-slate-900">Alex M.</div>
-                   <div className="text-xs text-slate-500">Completed "Intro to Robotics"</div>
+             {loading ? (
+               <div className="text-sm text-slate-500">Loading top performers...</div>
+             ) : leaderboard.length === 0 ? (
+               <div className="text-sm text-slate-500">No students have earned XP yet.</div>
+             ) : (
+               leaderboard.map((student, i) => (
+                 <div key={student.id} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg transition-colors border border-transparent hover:border-slate-100">
+                   <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 bg-indigo-50 text-indigo-700 rounded-full flex items-center justify-center font-bold">
+                       {student.name ? student.name.charAt(0).toUpperCase() : i + 1}
+                     </div>
+                     <div>
+                       <div className="font-bold text-sm text-slate-900">{student.name || "Pending Student"}</div>
+                       <div className="text-xs text-slate-500">Level {student.level || 1}</div>
+                     </div>
+                   </div>
+                   <span className="text-sm font-bold text-amber-500">{student.xp || 0} XP</span>
                  </div>
-               </div>
-               <span className="text-sm font-bold text-amber-500">+150 XP</span>
-             </div>
-             <div className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg transition-colors">
-               <div className="flex items-center gap-3">
-                 <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center font-bold text-slate-600">S</div>
-                 <div>
-                   <div className="font-bold text-sm text-slate-900">Sarah K.</div>
-                   <div className="text-xs text-slate-500">Ace Exam: "Python Basics"</div>
-                 </div>
-               </div>
-               <span className="text-sm font-bold text-amber-500">+300 XP</span>
-             </div>
+               ))
+             )}
           </div>
         </div>
       </div>

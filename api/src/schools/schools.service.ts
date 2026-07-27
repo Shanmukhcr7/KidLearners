@@ -136,6 +136,10 @@ export class SchoolsService {
     }
     const db = this.firebaseService.getFirestore();
     
+    // 0. Get School Name
+    const schoolDoc = await db.collection('schools').doc(schoolId).get();
+    const schoolName = schoolDoc.exists ? schoolDoc.data()?.name : 'My School';
+
     // 1. Get total students in this school
     const studentsSnapshot = await db.collection('users')
       .where('role', '==', 'student')
@@ -153,6 +157,7 @@ export class SchoolsService {
     const coursesSnapshot = await db.collection('courses').where('status', '==', 'Active').get();
 
     return {
+      schoolName,
       totalStudents: studentsSnapshot.size,
       averageXp: avgXp,
       activeCourses: coursesSnapshot.size,

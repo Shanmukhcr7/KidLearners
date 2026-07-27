@@ -8,14 +8,17 @@ export class TasksController {
 
   @Post()
   @UseGuards(FirebaseAuthGuard)
-  async createTask(@Request() req: any, @Body() body: { title: string, target: string, dueDate: string }) {
-    const role = req.user.role; 
-    return this.tasksService.createTask(body.title, body.target, body.dueDate, role);
+  async createTask(@Body() body: { title: string; target: string; dueDate: string }, @Request() req: any) {
+    const role = req.user.role;
+    const schoolId = req.user.schoolId;
+    return this.tasksService.createTask(body.title, body.target, body.dueDate, role, schoolId);
   }
 
   @Get()
   @UseGuards(FirebaseAuthGuard)
-  async getTasks() {
-    return this.tasksService.getTasks();
+  async getTasks(@Request() req: any) {
+    const role = req.user.role;
+    const schoolId = req.user.schoolId;
+    return this.tasksService.getTasks(role, schoolId);
   }
 }
