@@ -26,6 +26,31 @@ export class SchoolsController {
     return this.schoolsService.getMyStats(role, schoolId);
   }
 
+  @Post('invites/create')
+  @UseGuards(FirebaseAuthGuard)
+  async createInviteLink(@Body() body: { limit: number, expiryDays: number }, @Request() req: any) {
+    const role = req.user.role;
+    const schoolId = req.user.schoolId;
+    return this.schoolsService.createInviteLink(role, schoolId, body.limit, body.expiryDays);
+  }
+
+  @Get('invites')
+  @UseGuards(FirebaseAuthGuard)
+  async getInviteLinks(@Request() req: any) {
+    const role = req.user.role;
+    const schoolId = req.user.schoolId;
+    return this.schoolsService.getInviteLinks(role, schoolId);
+  }
+
+  @Post('invites/join/:token')
+  @UseGuards(FirebaseAuthGuard)
+  async joinSchoolWithToken(@Param('token') token: string, @Request() req: any) {
+    // Note: The user might already be a student or a completely new user
+    const uid = req.user.uid;
+    const email = req.user.email;
+    return this.schoolsService.joinSchoolWithToken(token, uid, email);
+  }
+
   @Get()
   @UseGuards(FirebaseAuthGuard)
   async getSchools(@Request() req: any) {

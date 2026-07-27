@@ -178,4 +178,88 @@ export class SchoolsService {
 
     return { success: true, message: 'Features updated successfully' };
   }
+
+  async createInviteLink(role: string, schoolId: string, limit: number, expiryDays: number) {
+    if (role !== 'school_admin' || !schoolId) {
+      throw new UnauthorizedException('Only School Admins can create invite links');
+    }
+
+    const db = this.firebaseService.getFirestore();
+    const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + expiryDays);
+
+    const invite = {
+      schoolId,
+      token,
+      limit,
+      currentUsage: 0,
+      expiresAt: expiryDate,
+      createdAt: new Date(),
+      status: 'Active'
+    };
+
+    await db.collection('school_invites').doc(token).set(invite);
+    return invite;
+  }
+
+  async getInviteLinks(role: string, schoolId: string) {
+    if (role !== 'school_admin' || !schoolId) {
+      throw new UnauthorizedException('Only School Admins can view invite links');
+    }
+
+    const db = this.firebaseService.getFirestore();
+    const snapshot = await db.collection('school_invites')
+      .where('schoolId', '==', schoolId)
+      .orderBy('createdAt', 'desc')
+      .get();
+      
+    const links: any[] = [];
+    snapshot.forEach(doc => links.push({ id: doc.id, ...doc.data() }));
+    return links;
+  }
+
+  async joinSchoolWithToken(token: string, uid: string, email: string) {
+    const db = this.firebaseService.getFirestore();
+    const auth = this.firebaseService.getAuth();
+    
+    const inviteRef = db.collection('school_invites').doc(token);
+    const inviteDoc = await inviteRef.get();
+    
+    if (!inviteDoc.exists) {
+      throw new UnauthorizedException('Invalid invite link');
+    }
+    
+    const inviteData = inviteDoc.data();
+    
+    // Check expiry
+    if (inviteData?.expiresAt.toDate() < new Date()) {
+      await inviteRef.update({ status: 'Expired' });
+      throw new UnauthorizedException('Invite link has expired');
+    }
+    
+    // Check limit
+    if (inviteData?.currentUsage >= inviteData?.limit) {
+      await inviteRef.update({ status: 'Limit Reached' });
+      throw new UnauthorizedException('Invite link limit reached');
+    }
+
+    // Update user in Firestore
+    await db.collection('users').doc(uid).set({
+      role: 'student',
+      schoolId: inviteData?.schoolId,
+      email: email, // ensure email is set if it's a new doc
+      xp: 0,
+      level: 1
+    }, { merge: true });
+
+    // Update custom claims
+    await auth.setCustomUserClaims(uid, { role: 'student', schoolId: inviteData?.schoolId });
+
+    // Increment usage
+    await inviteRef.update({ currentUsage: (inviteData?.currentUsage || 0) + 1 });
+
+    return { success: true, schoolId: inviteData?.schoolId };
+  }
 }
