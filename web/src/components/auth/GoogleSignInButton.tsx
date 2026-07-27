@@ -40,7 +40,7 @@ export default function GoogleSignInButton() {
 
           // Route based on role
           if (data.role === "school_admin") {
-            router.push("/school");
+            router.push("/school-admin");
           } else if (data.role === "super_admin") {
             router.push("/admin");
           } else if (data.role === "student") {
