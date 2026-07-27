@@ -54,6 +54,33 @@ export class UsersService {
     return users;
   }
 
+  async searchUsersByEmail(emailQuery: string, requestUserRole: string) {
+    if (requestUserRole !== 'super_admin') {
+      throw new UnauthorizedException('Only Super Admins can search users globally');
+    }
+
+    if (!emailQuery || emailQuery.length < 3) {
+      return [];
+    }
+
+    const db = this.firebaseService.getFirestore();
+    // In Firestore, we can do a prefix search using >= and <=
+    const endQuery = emailQuery + '\uf8ff';
+    const snapshot = await db.collection('users')
+      .where('email', '>=', emailQuery)
+      .where('email', '<=', endQuery)
+      .limit(10)
+      .get();
+    
+    const users: any[] = [];
+    snapshot.forEach((doc: any) => {
+      const data = doc.data();
+      users.push({ id: doc.id, email: data.email, name: data.name });
+    });
+    
+    return users;
+  }
+
   async setRole(uid: string, role: string) {
     // SuperAdmin only route
     const auth = this.firebaseService.getAuth();

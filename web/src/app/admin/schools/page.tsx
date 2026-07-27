@@ -184,7 +184,7 @@ export default function AdminSchoolsPage() {
               <h3 className="text-xl font-bold">Register New School</h3>
               <button onClick={() => setShowModal(false)} className="text-gray-500"><X size={20} /></button>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-4 relative">
               <div>
                 <label className="block text-sm font-medium mb-1">School Name</label>
                 <input type="text" className="w-full border rounded-lg p-2" onChange={e => setNewSchool({...newSchool, name: e.target.value})} />
@@ -193,13 +193,88 @@ export default function AdminSchoolsPage() {
                 <label className="block text-sm font-medium mb-1">Domain</label>
                 <input type="text" className="w-full border rounded-lg p-2" onChange={e => setNewSchool({...newSchool, domain: e.target.value})} />
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Admin Email</label>
-                <input type="email" className="w-full border rounded-lg p-2" onChange={e => setNewSchool({...newSchool, adminEmail: e.target.value})} />
-              </div>
-              <button onClick={handleCreateSchool} className="w-full bg-blue-600 text-white font-bold py-2 rounded-lg mt-4">Create School</button>
+              
+              <EmailSearchInput 
+                onSelect={(email) => setNewSchool({...newSchool, adminEmail: email})} 
+              />
+              
+              <button onClick={handleCreateSchool} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg mt-4 transition-colors">Create School</button>
             </div>
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EmailSearchInput({ onSelect }: { onSelect: (email: string) => void }) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (query.length >= 3) {
+        searchUsers();
+      } else {
+        setResults([]);
+      }
+    }, 500);
+    return () => clearTimeout(delayDebounceFn);
+  }, [query]);
+
+  const searchUsers = async () => {
+    setLoading(true);
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + `/users/search?email=${encodeURIComponent(query)}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setResults(data);
+        setShowDropdown(true);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="relative">
+      <label className="block text-sm font-medium mb-1">Admin Email (Search existing users)</label>
+      <input 
+        type="email" 
+        value={query}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          onSelect(e.target.value); // In case they want to type a brand new email
+        }}
+        onFocus={() => { if (results.length > 0) setShowDropdown(true); }}
+        className="w-full border rounded-lg p-2" 
+        placeholder="Search by email..."
+      />
+      {loading && <div className="absolute right-3 top-9 text-xs text-slate-400">Searching...</div>}
+      
+      {showDropdown && results.length > 0 && (
+        <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 shadow-lg rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+          {results.map(user => (
+            <div 
+              key={user.id} 
+              className="p-3 hover:bg-blue-50 cursor-pointer border-b border-slate-100 last:border-0"
+              onClick={() => {
+                setQuery(user.email);
+                onSelect(user.email);
+                setShowDropdown(false);
+              }}
+            >
+              <div className="font-bold text-sm text-slate-900">{user.email}</div>
+              <div className="text-xs text-slate-500">{user.name}</div>
+            </div>
+          ))}
         </div>
       )}
     </div>
