@@ -31,6 +31,16 @@ export class SchoolsService {
       adminEmail,
       status: 'Active',
       plan: 'Pro',
+      features: {
+        courses: true,
+        exams: true,
+        tasks: true,
+        certificates: true,
+        leaderboards: true,
+        aiTutor: false,
+        robotics: false,
+        events: false
+      },
       createdAt: new Date(),
     };
 
@@ -118,5 +128,20 @@ export class SchoolsService {
       console.error("Firebase Admin Error:", globalErr);
       throw new Error("Failed to fetch statistics from the database");
     }
+  }
+
+  async updateFeatures(schoolId: string, features: any, requestUserRole: string) {
+    if (requestUserRole !== 'super_admin') {
+      throw new UnauthorizedException('Only Super Admins can configure platform features');
+    }
+
+    const db = this.firebaseService.getFirestore();
+    const schoolRef = db.collection('schools').doc(schoolId);
+    
+    await schoolRef.set({
+      features: features
+    }, { merge: true });
+
+    return { success: true, message: 'Features updated successfully' };
   }
 }

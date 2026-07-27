@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, UseGuards, Request, Param } from '@nestjs/common';
+import { Controller, Post, Get, Put, Body, UseGuards, Request, Param } from '@nestjs/common';
 import { SchoolsService } from './schools.service';
 import { FirebaseAuthGuard } from '../firebase/firebase.guard';
 
@@ -32,5 +32,12 @@ export class SchoolsController {
     // req.user.schoolId would be injected if we saved it in claims, for now we pass a dummy ID
     const userSchoolId = req.user.schoolId || 'default_school_id'; 
     return this.schoolsService.getStudents(id, role, userSchoolId);
+  }
+
+  @Put(':id/features')
+  @UseGuards(FirebaseAuthGuard)
+  async updateFeatures(@Request() req: any, @Param('id') id: string, @Body() features: any) {
+    const role = req.user.role;
+    return this.schoolsService.updateFeatures(id, features, role);
   }
 }

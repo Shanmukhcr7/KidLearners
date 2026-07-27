@@ -1,12 +1,7 @@
 import { ShieldCheck, Search } from "lucide-react";
 
 export default function AdminAuditLogsPage() {
-  const logs = [
-    { id: 1, action: "Admin created Course AI Basics", user: "Super Admin", time: "10:42 AM, Oct 22", ip: "192.168.1.1" },
-    { id: 2, action: "School ABC approved", user: "Super Admin", time: "09:15 AM, Oct 22", ip: "192.168.1.1" },
-    { id: 3, action: "Role changed to school_admin for John Doe", user: "System", time: "08:00 AM, Oct 22", ip: "Internal" },
-    { id: 4, action: "Failed login attempt", user: "Unknown", time: "07:30 AM, Oct 22", ip: "45.22.19.10" },
-  ];
+  const logs: any[] = [];
 
   return (
     <div className="space-y-6">
@@ -36,21 +31,29 @@ export default function AdminAuditLogsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 bg-white">
-              {logs.map((log) => (
-                <tr key={log.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
-                        <ShieldCheck size={16} />
-                      </div>
-                      <div className="font-medium text-slate-900 text-sm">{log.action}</div>
-                    </div>
+              {logs.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
+                    No audit logs available.
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{log.user}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{log.time}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-400 font-mono">{log.ip}</td>
                 </tr>
-              ))}
+              ) : (
+                logs.map((log) => (
+                  <tr key={log.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
+                          <ShieldCheck size={16} />
+                        </div>
+                        <div className="font-medium text-slate-900 text-sm">{log.action}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{log.user}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{log.time}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-400 font-mono">{log.ip}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

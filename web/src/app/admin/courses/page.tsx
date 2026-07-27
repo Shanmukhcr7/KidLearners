@@ -1,11 +1,7 @@
 import { BookOpen, Plus, Search, Edit2, ShieldAlert } from "lucide-react";
 
 export default function AdminCoursesPage() {
-  const courses = [
-    { id: 1, title: "AI Basics", modules: 5, lessons: 24, status: "Published", students: 1240 },
-    { id: 2, title: "Python for Kids", modules: 8, lessons: 42, status: "Draft", students: 0 },
-    { id: 3, title: "Prompt Engineering", modules: 3, lessons: 12, status: "Published", students: 850 },
-  ];
+  const courses: any[] = [];
 
   return (
     <div className="space-y-6">
@@ -45,35 +41,43 @@ export default function AdminCoursesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 bg-white">
-              {courses.map((course) => (
-                <tr key={course.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold shrink-0">
-                        <BookOpen size={20} />
-                      </div>
-                      <div className="font-bold text-slate-900">{course.title}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                    {course.modules} Modules • {course.lessons} Lessons
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${
-                      course.status === "Published" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
-                    }`}>
-                      {course.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-600">{course.students}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center justify-end gap-2">
-                      <button className="p-1.5 text-slate-400 hover:text-blue-600 rounded-md hover:bg-blue-50"><Edit2 size={18} /></button>
-                      <button className="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50"><ShieldAlert size={18} /></button>
-                    </div>
+              {courses.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
+                    No courses found. Connect to database to load live data.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                courses.map((course) => (
+                  <tr key={course.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold shrink-0">
+                          <BookOpen size={20} />
+                        </div>
+                        <div className="font-bold text-slate-900">{course.title}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                      {course.modules} Modules • {course.lessons} Lessons
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${
+                        course.status === "Published" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+                      }`}>
+                        {course.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-600">{course.students}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex items-center justify-end gap-2">
+                        <button className="p-1.5 text-slate-400 hover:text-blue-600 rounded-md hover:bg-blue-50"><Edit2 size={18} /></button>
+                        <button className="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50"><ShieldAlert size={18} /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

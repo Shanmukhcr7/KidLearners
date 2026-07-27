@@ -1,11 +1,7 @@
 import { ClipboardList, Plus, Search, Edit2, CheckCircle2 } from "lucide-react";
 
 export default function AdminTasksPage() {
-  const tasks = [
-    { id: 1, title: "Create a basic Python Calculator", target: "All Schools", dueDate: "Oct 25, 2026", status: "Active", submissions: 450 },
-    { id: 2, title: "Write an essay on AI Ethics", target: "High School Grade", dueDate: "Nov 01, 2026", status: "Active", submissions: 120 },
-    { id: 3, title: "Robotics Blueprint Design", target: "STEM Batch A", dueDate: "Oct 10, 2026", status: "Completed", submissions: 890 },
-  ];
+  const tasks: any[] = [];
 
   return (
     <div className="space-y-6">
@@ -40,34 +36,42 @@ export default function AdminTasksPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 bg-white">
-              {tasks.map((task) => (
-                <tr key={task.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center font-bold shrink-0">
-                        <ClipboardList size={20} />
-                      </div>
-                      <div className="font-bold text-slate-900">{task.title}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{task.target}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{task.dueDate}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${
-                      task.status === "Active" ? "bg-green-100 text-green-800" : "bg-slate-100 text-slate-800"
-                    }`}>
-                      {task.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-600">{task.submissions}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center justify-end gap-2">
-                      <button className="p-1.5 text-slate-400 hover:text-blue-600 rounded-md hover:bg-blue-50"><Edit2 size={18} /></button>
-                      <button className="p-1.5 text-slate-400 hover:text-green-600 rounded-md hover:bg-green-50"><CheckCircle2 size={18} /></button>
-                    </div>
+              {tasks.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
+                    No tasks found. Connect to database to load live data.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                tasks.map((task) => (
+                  <tr key={task.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center font-bold shrink-0">
+                          <ClipboardList size={20} />
+                        </div>
+                        <div className="font-bold text-slate-900">{task.title}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{task.target}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{task.dueDate}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${
+                        task.status === "Active" ? "bg-green-100 text-green-800" : "bg-slate-100 text-slate-800"
+                      }`}>
+                        {task.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-600">{task.submissions}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex items-center justify-end gap-2">
+                        <button className="p-1.5 text-slate-400 hover:text-blue-600 rounded-md hover:bg-blue-50"><Edit2 size={18} /></button>
+                        <button className="p-1.5 text-slate-400 hover:text-green-600 rounded-md hover:bg-green-50"><CheckCircle2 size={18} /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
