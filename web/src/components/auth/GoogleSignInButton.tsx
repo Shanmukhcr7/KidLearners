@@ -69,10 +69,17 @@ export default function GoogleSignInButton() {
     <button 
       onClick={handleSignIn}
       disabled={loading}
-      className="px-4 py-2 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 transition-colors flex items-center justify-center gap-2 shadow-sm"
+      className="px-3 sm:px-4 py-2 border border-slate-300 rounded-lg text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 transition-colors flex items-center justify-center gap-2 shadow-sm whitespace-nowrap"
     >
-      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-4 h-4" />
-      {loading ? "Signing in..." : "Sign In with Google"}
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-4 h-4 shrink-0" />
+      {loading ? (
+        <span>Signing in...</span>
+      ) : (
+        <>
+          <span className="hidden sm:inline">Sign In with Google</span>
+          <span className="sm:hidden">Sign In</span>
+        </>
+      )}
     </button>
   );
 }
