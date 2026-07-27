@@ -14,7 +14,12 @@ export default function GalleryPage() {
     fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/gallery`)
       .then(res => res.json())
       .then(data => {
-        setImages(data);
+        if (Array.isArray(data)) {
+          setImages(data);
+        } else {
+          console.error("API did not return an array", data);
+          setImages([]);
+        }
         setLoading(false);
       })
       .catch(err => {
