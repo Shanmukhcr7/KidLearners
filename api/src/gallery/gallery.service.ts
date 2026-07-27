@@ -55,7 +55,7 @@ export class GalleryService {
         createdAt: new Date().toISOString(),
       };
 
-      const docRef = await this.firebaseService.getDb().collection('gallery').add(newDoc);
+      const docRef = await this.firebaseService.getFirestore().collection('gallery').add(newDoc);
       
       return { id: docRef.id, ...newDoc };
     } catch (error) {
@@ -66,8 +66,8 @@ export class GalleryService {
 
   async getImages() {
     try {
-      const snapshot = await this.firebaseService.getDb().collection('gallery').orderBy('createdAt', 'desc').get();
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const snapshot = await this.firebaseService.getFirestore().collection('gallery').orderBy('createdAt', 'desc').get();
+      return snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
       this.logger.error(`Failed to fetch images: ${error.message}`);
       throw new InternalServerErrorException('Failed to fetch gallery images');
@@ -76,7 +76,7 @@ export class GalleryService {
 
   async deleteImage(id: string) {
     try {
-      const docRef = this.firebaseService.getDb().collection('gallery').doc(id);
+      const docRef = this.firebaseService.getFirestore().collection('gallery').doc(id);
       const doc = await docRef.get();
       
       if (!doc.exists) {

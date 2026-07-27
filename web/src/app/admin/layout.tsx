@@ -76,6 +76,9 @@ export default function SuperAdminLayout({
                   <NavItem href="/admin/tasks" icon={<BarChart size={18} />} label="Tasks" active={pathname === "/admin/tasks"} />
                   <NavItem href="/admin/exams" icon={<BarChart size={18} />} label="Exams" active={pathname === "/admin/exams"} />
                   <NavItem href="/admin/questions" icon={<BarChart size={18} />} label="Question Bank" active={pathname === "/admin/questions"} />
+                </div>
+              </div>
+
               {/* Engagement */}
               <div>
                 <div className="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">Engagement</div>
