@@ -12,7 +12,7 @@ export default function AdminUsersPage() {
     async function fetchUsers() {
       try {
         const token = await auth.currentUser?.getIdToken();
-        const res = await fetch("http://localhost:3001/admin/users", {
+        const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + "/admin/users", {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
@@ -34,7 +34,7 @@ export default function AdminUsersPage() {
   const handleRoleChange = async (uid: string, newRole: string) => {
     try {
       const token = await auth.currentUser?.getIdToken();
-      const res = await fetch("http://localhost:3001/users/role", {
+      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + "/users/role", {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",

@@ -12,7 +12,7 @@ export default function SuperAdminDashboardPage() {
     async function fetchStats() {
       try {
         const token = await auth.currentUser?.getIdToken();
-        const res = await fetch("http://localhost:3001/admin/stats", {
+        const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + "/admin/stats", {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {

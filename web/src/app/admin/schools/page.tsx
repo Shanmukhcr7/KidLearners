@@ -13,7 +13,7 @@ export default function AdminSchoolsPage() {
     async function fetchSchools() {
       try {
         const token = await auth.currentUser?.getIdToken();
-        const res = await fetch("http://localhost:3001/admin/schools", {
+        const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + "/admin/schools", {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {

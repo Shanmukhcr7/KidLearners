@@ -10,7 +10,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:3001/schools/stats")
+    fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + "/schools/stats")
       .then(res => res.json())
       .then(data => {
         setStats(data);

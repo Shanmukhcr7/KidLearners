@@ -24,7 +24,7 @@ export default function GoogleSignInButton() {
 
       // Call NestJS API to register/login user and get role
       try {
-        const response = await fetch("http://localhost:3001/users/sync", {
+        const response = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + "/users/sync", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

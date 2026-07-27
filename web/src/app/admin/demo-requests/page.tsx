@@ -14,7 +14,7 @@ export default function DemoRequestsPage() {
       const token = await auth.currentUser.getIdToken();
       
       try {
-        const res = await fetch("http://localhost:3001/demo-requests", {
+        const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + "/demo-requests", {
           headers: {
             "Authorization": `Bearer ${token}`
           }
