@@ -77,8 +77,8 @@ export default function AdminUsersPage() {
           </div>
         </div>
 
-        {/* Data Table */}
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-white text-xs uppercase tracking-wider text-slate-500 font-semibold border-b border-slate-200">
@@ -98,7 +98,7 @@ export default function AdminUsersPage() {
                   <tr key={i} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold">
+                        <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold shrink-0">
                           {u.name ? u.name[0].toUpperCase() : <Users size={20} />}
                         </div>
                         <div>
@@ -136,6 +136,55 @@ export default function AdminUsersPage() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Cards View */}
+        <div className="md:hidden flex flex-col divide-y divide-slate-200">
+          {loading ? (
+            <div className="text-center py-8 text-slate-500">Loading users...</div>
+          ) : users.length === 0 ? (
+            <div className="text-center py-8 text-slate-500">No users found.</div>
+          ) : (
+            users.map((u, i) => (
+              <div key={i} className="p-4 flex flex-col gap-4 bg-white hover:bg-slate-50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold shrink-0 text-lg">
+                    {u.name ? u.name[0].toUpperCase() : <Users size={24} />}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-bold text-slate-900 text-base">{u.name || "Unknown"}</div>
+                    <div className="text-sm text-slate-500">{u.email}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs font-bold text-slate-500">Lvl {u.level || 1}</div>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col gap-2 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                  <div className="text-xs text-slate-500">Role & Access</div>
+                  <div className="flex items-center justify-between">
+                    <span className={`px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${
+                      u.role === 'super_admin' ? 'bg-purple-100 text-purple-800' : 
+                      u.role === 'school_admin' ? 'bg-blue-100 text-blue-800' : 
+                      'bg-slate-100 text-slate-800'
+                    }`}>
+                      {u.role || "user"}
+                    </span>
+                    <select 
+                      className="border border-slate-300 rounded p-1.5 text-sm bg-white font-medium"
+                      value={u.role || "user"}
+                      onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                    >
+                      <option value="user">User</option>
+                      <option value="student">Student</option>
+                      <option value="school_admin">School Admin</option>
+                      <option value="super_admin">Super Admin</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

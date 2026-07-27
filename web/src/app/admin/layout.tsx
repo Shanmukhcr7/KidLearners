@@ -9,6 +9,7 @@ import {
   Mail
 } from "lucide-react";
 import Link from "next/link";
+import { AnimatedSection } from "@/components/ui/AnimatedSection";
 
 export default function SuperAdminLayout({
   children,
@@ -17,9 +18,9 @@ export default function SuperAdminLayout({
 }) {
   return (
     <RoleGuard allowedRoles={["super_admin"]}>
-      <div className="min-h-screen bg-slate-50 flex font-sans">
-        {/* Sidebar - Super Admin Dark Mode */}
-        <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col z-10 sticky top-0 h-screen text-slate-300">
+      <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans">
+        {/* Sidebar - Super Admin Dark Mode (Desktop Only) */}
+        <aside className="hidden md:flex w-64 bg-slate-900 border-r border-slate-800 flex-col z-10 sticky top-0 h-screen text-slate-300">
           <div className="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-950">
             <ShieldCheck size={24} className="text-blue-500 mr-3" />
             <h1 className="text-xl font-bold text-white tracking-tight">System Admin</h1>
@@ -45,9 +46,13 @@ export default function SuperAdminLayout({
         <main className="flex-1 flex flex-col h-screen overflow-hidden">
           
           {/* Top Header */}
-          <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-end px-8 sticky top-0 z-10 shadow-sm">
+          <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between md:justify-end px-4 md:px-8 sticky top-0 z-10 shadow-sm">
+            <div className="md:hidden flex items-center">
+               <ShieldCheck size={24} className="text-blue-600 mr-2" />
+               <h1 className="text-lg font-bold text-slate-900 tracking-tight">SysAdmin</h1>
+            </div>
             <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-gray-500">Super Admin (KidLearners HQ)</span>
+              <span className="hidden md:inline text-sm font-medium text-gray-500">Super Admin (KidLearners HQ)</span>
               <div className="h-8 w-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-inner">
                 HQ
               </div>
@@ -55,12 +60,20 @@ export default function SuperAdminLayout({
           </header>
 
           {/* Page Content */}
-          <div className="flex-1 overflow-y-auto p-8">
-            <div className="max-w-6xl mx-auto">
+          <div className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8">
+            <AnimatedSection className="max-w-6xl mx-auto h-full">
               {children}
-            </div>
+            </AnimatedSection>
           </div>
         </main>
+
+        {/* Bottom Navigation Bar (Mobile Only) */}
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 z-50 flex justify-around items-center px-2 py-3 pb-safe shadow-[0_-4px_10px_rgba(0,0,0,0.2)]">
+          <MobileNavItem href="/admin" icon={<BarChart size={24} />} label="Stats" />
+          <MobileNavItem href="/admin/schools" icon={<Building2 size={24} />} label="Schools" />
+          <MobileNavItem href="/admin/users" icon={<Users size={24} />} label="Users" />
+          <MobileNavItem href="/admin/demo-requests" icon={<Mail size={24} />} label="Demos" />
+        </nav>
       </div>
     </RoleGuard>
   );
@@ -78,6 +91,15 @@ function NavItem({ href, icon, label, active = false }: { href: string; icon: Re
     >
       {icon}
       <span>{label}</span>
+    </Link>
+  );
+}
+
+function MobileNavItem({ href, icon, label, active = false }: { href: string; icon: React.ReactNode; label: string, active?: boolean }) {
+  return (
+    <Link href={href} className={`flex flex-col items-center justify-center p-2 rounded-xl active:scale-95 transition-transform ${active ? "text-blue-500" : "text-slate-400"}`}>
+      {icon}
+      <span className="text-xs font-medium mt-1">{label}</span>
     </Link>
   );
 }

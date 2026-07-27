@@ -69,8 +69,8 @@ export default function AdminSchoolsPage() {
           </div>
         </div>
 
-        {/* Data Table */}
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-white text-xs uppercase tracking-wider text-slate-500 font-semibold border-b border-slate-200">
@@ -86,7 +86,7 @@ export default function AdminSchoolsPage() {
                 <tr key={i} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
+                      <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold shrink-0">
                         <Building2 size={20} />
                       </div>
                       <div>
@@ -114,6 +114,45 @@ export default function AdminSchoolsPage() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Cards View */}
+        <div className="md:hidden flex flex-col divide-y divide-slate-200">
+          {schools.map((school, i) => (
+            <div key={i} className="p-4 flex flex-col gap-4 bg-white hover:bg-slate-50 transition-colors">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold shrink-0">
+                    <Building2 size={24} />
+                  </div>
+                  <div>
+                    <div className="font-bold text-slate-900 text-base">{school.name}</div>
+                    <div className="text-sm text-slate-500">{school.domain}</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                <div>
+                  <div className="text-xs text-slate-500 mb-1">Status</div>
+                  <span className={`px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${
+                    school.pending ? "bg-yellow-100 text-yellow-800" : "bg-green-100 text-green-800"
+                  }`}>
+                    {school.status}
+                  </span>
+                </div>
+                <div>
+                  <div className="text-xs text-slate-500 mb-1">Students</div>
+                  <div className="font-medium text-slate-700 text-sm">{school.students} enrolled</div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 mt-1">
+                <button className="flex-1 py-2.5 text-sm font-bold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 flex items-center justify-center gap-2"><Edit2 size={16} /> Edit</button>
+                <button className="flex-1 py-2.5 text-sm font-bold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 flex items-center justify-center gap-2"><ShieldAlert size={16} /> Suspend</button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
