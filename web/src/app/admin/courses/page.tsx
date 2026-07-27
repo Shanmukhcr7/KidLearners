@@ -1,7 +1,67 @@
-import { BookOpen, Plus, Search, Edit2, ShieldAlert } from "lucide-react";
+"use client";
+
+import { useEffect, useState } from "react";
+import { BookOpen, Plus, Search, Edit2, ShieldAlert, X } from "lucide-react";
+import { auth } from "@/utils/firebase";
 
 export default function AdminCoursesPage() {
-  const courses: any[] = [];
+  const [courses, setCourses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newCourse, setNewCourse] = useState({ title: "", description: "" });
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  async function fetchCourses() {
+    setLoading(true);
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + "/courses", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCourses(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch courses", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const handleCreateCourse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + "/courses", {
+        method: "POST",
+        headers: { 
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(newCourse)
+      });
+      
+      if (res.ok) {
+        setNewCourse({ title: "", description: "" });
+        setIsModalOpen(false);
+        fetchCourses(); // Reload
+      } else {
+        alert("Failed to create course");
+      }
+    } catch (error) {
+      console.error("Error creating course:", error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -10,7 +70,10 @@ export default function AdminCoursesPage() {
           <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Manage Courses</h2>
           <p className="text-sm text-slate-500 mt-1">Create, edit, and assign learning paths.</p>
         </div>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors">
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors"
+        >
           <Plus size={18} /> Create Course
         </button>
       </div>
@@ -41,10 +104,16 @@ export default function AdminCoursesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 bg-white">
-              {courses.length === 0 ? (
+              {loading ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
-                    No courses found. Connect to database to load live data.
+                    Loading courses...
+                  </td>
+                </tr>
+              ) : courses.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
+                    No courses found. Click "Create Course" to add one!
                   </td>
                 </tr>
               ) : (
@@ -55,7 +124,10 @@ export default function AdminCoursesPage() {
                         <div className="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold shrink-0">
                           <BookOpen size={20} />
                         </div>
-                        <div className="font-bold text-slate-900">{course.title}</div>
+                        <div>
+                          <div className="font-bold text-slate-900">{course.title}</div>
+                          <div className="text-xs text-slate-500">{course.description?.substring(0,40)}...</div>
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
@@ -82,6 +154,63 @@ export default function AdminCoursesPage() {
           </table>
         </div>
       </div>
+
+      {/* Create Course Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-slate-900">Create New Course</h3>
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:bg-slate-100 p-2 rounded-full">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleCreateCourse} className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1">Course Title</label>
+                <input 
+                  type="text" 
+                  required
+                  value={newCourse.title}
+                  onChange={(e) => setNewCourse({...newCourse, title: e.target.value})}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-600"
+                  placeholder="e.g. Intro to Python"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-bold text-slate-700 mb-1">Description</label>
+                <textarea 
+                  required
+                  value={newCourse.description}
+                  onChange={(e) => setNewCourse({...newCourse, description: e.target.value})}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-600"
+                  placeholder="What will students learn?"
+                  rows={3}
+                />
+              </div>
+
+              <div className="pt-4 flex justify-end gap-3">
+                <button 
+                  type="button" 
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={submitting}
+                  className="px-4 py-2 font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 rounded-lg flex items-center gap-2"
+                >
+                  {submitting ? "Creating..." : "Create Course"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

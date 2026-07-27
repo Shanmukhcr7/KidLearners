@@ -6,9 +6,10 @@ import { UsersModule } from './users/users.module';
 import { SchoolsModule } from './schools/schools.module';
 import { DemoModule } from './demo/demo.module';
 import { AdminModule } from './admin/admin.module';
+import { CoursesModule } from './courses/courses.module';
 
 @Module({
-  imports: [FirebaseModule, UsersModule, SchoolsModule, DemoModule, AdminModule],
+  imports: [FirebaseModule, UsersModule, SchoolsModule, DemoModule, AdminModule, CoursesModule],
   controllers: [AppController],
   providers: [AppService],
 })
