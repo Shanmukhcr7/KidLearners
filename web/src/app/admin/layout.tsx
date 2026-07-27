@@ -27,16 +27,87 @@ export default function SuperAdminLayout({
             <span className="font-bold text-lg tracking-tight text-white">KidLearners HQ</span>
           </div>
 
-          <nav className="flex-1 px-4 py-6 space-y-1">
-            <NavItem href="/admin" icon={<BarChart size={20} />} label="Overview" active />
-            <NavItem href="/admin/schools" icon={<Building2 size={20} />} label="Manage Schools" />
-            <NavItem href="/admin/users" icon={<Users size={20} />} label="All Users" />
-            <NavItem href="/admin/demo-requests" icon={<Mail size={20} />} label="Demo Requests" />
-          </nav>
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            <nav className="px-4 py-6 space-y-6">
+              
+              {/* Dashboard */}
+              <div>
+                <NavItem href="/admin" icon={<BarChart size={18} />} label="Overview" active />
+              </div>
 
-          <div className="px-4 py-4 border-t border-slate-800 space-y-1 bg-slate-950">
-             <NavItem href="/admin/settings" icon={<Settings size={20} />} label="Platform Settings" />
-             <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium hover:text-white hover:bg-slate-800 transition-colors text-left text-sm mt-2">
+              {/* School Management */}
+              <div>
+                <div className="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">School Management</div>
+                <div className="space-y-1">
+                  <NavItem href="/admin/schools" icon={<Building2 size={18} />} label="Schools" />
+                  <NavItem href="/admin/schools/requests" icon={<Mail size={18} />} label="Requests" />
+                  <NavItem href="/admin/schools/subscriptions" icon={<ShieldCheck size={18} />} label="Subscriptions" />
+                </div>
+              </div>
+
+              {/* User Management */}
+              <div>
+                <div className="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">User Management</div>
+                <div className="space-y-1">
+                  <NavItem href="/admin/users" icon={<Users size={18} />} label="All Users" />
+                  <NavItem href="/admin/users/roles" icon={<ShieldCheck size={18} />} label="Roles & Permissions" />
+                </div>
+              </div>
+
+              {/* Learning */}
+              <div>
+                <div className="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">Learning</div>
+                <div className="space-y-1">
+                  <NavItem href="/admin/courses" icon={<BarChart size={18} />} label="Courses" />
+                  <NavItem href="/admin/courses/curriculum" icon={<BarChart size={18} />} label="Curriculum" />
+                </div>
+              </div>
+
+              {/* Assessments */}
+              <div>
+                <div className="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">Assessments</div>
+                <div className="space-y-1">
+                  <NavItem href="/admin/tasks" icon={<BarChart size={18} />} label="Tasks" />
+                  <NavItem href="/admin/exams" icon={<BarChart size={18} />} label="Exams" />
+                  <NavItem href="/admin/questions" icon={<BarChart size={18} />} label="Question Bank" />
+                </div>
+              </div>
+
+              {/* Engagement */}
+              <div>
+                <div className="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">Engagement</div>
+                <div className="space-y-1">
+                  <NavItem href="/admin/leaderboards" icon={<BarChart size={18} />} label="Leaderboards" />
+                  <NavItem href="/admin/gamification" icon={<BarChart size={18} />} label="Gamification" />
+                  <NavItem href="/admin/certificates" icon={<BarChart size={18} />} label="Certificates" />
+                  <NavItem href="/admin/events" icon={<BarChart size={18} />} label="Events" />
+                </div>
+              </div>
+
+              {/* Communication */}
+              <div>
+                <div className="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">Communication</div>
+                <div className="space-y-1">
+                  <NavItem href="/admin/announcements" icon={<BarChart size={18} />} label="Announcements" />
+                  <NavItem href="/admin/notifications" icon={<BarChart size={18} />} label="Notifications" />
+                  <NavItem href="/admin/crm" icon={<BarChart size={18} />} label="CRM & Support" />
+                </div>
+              </div>
+
+              {/* Admin Tools */}
+              <div>
+                <div className="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">Admin Tools</div>
+                <div className="space-y-1">
+                  <NavItem href="/admin/analytics" icon={<BarChart size={18} />} label="Analytics" />
+                  <NavItem href="/admin/audit-logs" icon={<ShieldCheck size={18} />} label="Audit Logs" />
+                  <NavItem href="/admin/settings" icon={<Settings size={18} />} label="Settings" />
+                </div>
+              </div>
+            </nav>
+          </div>
+
+          <div className="px-4 py-4 border-t border-slate-800 bg-slate-950 shrink-0">
+             <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium hover:text-white hover:bg-slate-800 transition-colors text-left text-sm">
                <LogOut size={20} />
                <span>Sign Out</span>
              </button>

@@ -43,22 +43,61 @@ export default function SuperAdminDashboardPage() {
         <p className="text-sm text-slate-500 mt-1">High-level metrics across the entire KidLearners platform.</p>
       </div>
 
-      {/* KPI Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <StatCard title="Active Schools" value={loading ? "..." : stats.schools.toString()} change="Real-time" icon={<Building2 size={24} />} />
-        <StatCard title="Total Students" value={loading ? "..." : stats.students.toString()} change="Real-time" icon={<Users size={24} />} />
-        <StatCard title="Monthly MRR" value={`$${stats.mrr}`} change="0%" icon={<CreditCard size={24} />} />
-        <StatCard title="System Health" value={`${stats.health}%`} change="All Systems Operational" icon={<Activity size={24} />} />
+      {/* KPI Stats Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard title="Total Schools" value={loading ? "..." : stats.schools.toString()} change="+3 this month" icon={<Building2 size={20} />} />
+        <StatCard title="Pending Requests" value="12" change="Action Required" icon={<Activity size={20} />} />
+        <StatCard title="Total Students" value={loading ? "..." : stats.students.toString()} change="+12% vs last month" icon={<Users size={20} />} />
+        <StatCard title="Active Today" value="4,209" change="High Activity" icon={<Users size={20} />} />
+        <StatCard title="Total Courses" value="128" change="+5 new" icon={<Building2 size={20} />} />
+        <StatCard title="Total Exams" value="8,492" change="Conducted" icon={<CreditCard size={20} />} />
+        <StatCard title="Certificates" value="1,204" change="Issued" icon={<Activity size={20} />} />
+        <StatCard title="Platform Uptime" value={`${stats.health}%`} change="Operational" icon={<Activity size={20} />} />
       </div>
 
-      {/* Platform Activity */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-5 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-          <h3 className="text-lg font-bold text-slate-800">Recent School Signups (Needs Approval)</h3>
-          <button className="text-sm font-medium text-blue-600 hover:text-blue-700">View All Applications</button>
+      {/* Graphs Section Placeholder */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Student & School Growth</h3>
+          </div>
+          <div className="h-64 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-slate-50 flex items-center justify-center border-b border-slate-100">
+             <span className="text-slate-400 font-bold bg-white px-4 py-2 rounded shadow-sm">Chart Data Loading...</span>
+          </div>
         </div>
-        <div className="p-6 text-center text-slate-500 py-12">
-          No pending school registrations at this time.
+
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Course Completion Rates</h3>
+          </div>
+          <div className="h-64 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-slate-50 flex items-center justify-center border-b border-slate-100">
+             <span className="text-slate-400 font-bold bg-white px-4 py-2 rounded shadow-sm">Chart Data Loading...</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Activity and Notifications */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-200 bg-slate-50">
+            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Recent Activities</h3>
+          </div>
+          <div className="divide-y divide-slate-100">
+            <div className="p-4 flex gap-4 text-sm"><span className="text-blue-500 font-bold">10:42 AM</span><span><b>Delhi Public School</b> registered for demo.</span></div>
+            <div className="p-4 flex gap-4 text-sm"><span className="text-blue-500 font-bold">09:15 AM</span><span><b>125 students</b> finished Module 2 (AI Basics).</span></div>
+            <div className="p-4 flex gap-4 text-sm"><span className="text-blue-500 font-bold">08:00 AM</span><span><b>Super Admin</b> published new course.</span></div>
+          </div>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-200 bg-red-50">
+            <h3 className="text-sm font-bold text-red-800 uppercase tracking-wider">System Alerts & Notifications</h3>
+          </div>
+          <div className="divide-y divide-slate-100">
+            <div className="p-4 flex gap-4 text-sm text-red-700"><b>Action Required:</b> 12 Pending School Approvals.</div>
+            <div className="p-4 flex gap-4 text-sm text-yellow-700"><b>Notice:</b> Database backup scheduled at 12:00 AM.</div>
+            <div className="p-4 flex gap-4 text-sm text-slate-600"><b>Info:</b> 3 subscriptions expiring this week.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -67,16 +106,16 @@ export default function SuperAdminDashboardPage() {
 
 function StatCard({ title, value, change, icon }: { title: string; value: string; change: string; icon: React.ReactNode }) {
   return (
-    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col">
-      <div className="flex justify-between items-start mb-4">
-        <div className="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+    <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+      <div className="flex justify-between items-center mb-2">
+        <p className="text-xs font-bold text-slate-500 uppercase">{title}</p>
+        <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
           {icon}
         </div>
       </div>
       <div>
-        <h4 className="text-3xl font-black text-slate-900">{value}</h4>
-        <p className="text-sm font-bold text-slate-500 mt-1">{title}</p>
-        <p className="text-xs font-medium text-green-600 mt-2">{change}</p>
+        <h4 className="text-2xl font-black text-slate-900">{value}</h4>
+        <p className="text-xs font-medium text-green-600 mt-1">{change}</p>
       </div>
     </div>
   );
