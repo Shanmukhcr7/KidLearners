@@ -11,6 +11,7 @@ export default function AddStudentsPage() {
   const [query, setQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
 
   // Invite Link State
   const [inviteLink, setInviteLink] = useState("");
@@ -22,7 +23,7 @@ export default function AddStudentsPage() {
   // Debounced Search
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      if (query.length >= 3) {
+      if (query.length >= 3 && !selectedUser) {
         performSearch();
       } else {
         setSearchResults([]);
@@ -49,7 +50,8 @@ export default function AddStudentsPage() {
     }
   }
 
-  async function handleAddUser(userEmail: string) {
+  async function handleAddUser() {
+    if (!selectedUser) return;
     try {
       const token = await auth.currentUser?.getIdToken();
       // We can reuse the invite endpoint for direct manual adding if it accepts email
@@ -59,11 +61,12 @@ export default function AddStudentsPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ email: userEmail })
+        body: JSON.stringify({ email: selectedUser.email })
       });
       if (res.ok) {
         alert("Student added successfully!");
         setQuery("");
+        setSelectedUser(null);
       } else {
         alert("Failed to add student.");
       }
@@ -116,24 +119,27 @@ export default function AddStudentsPage() {
           {activeTab === "search" && (
             <div className="space-y-6">
               <div className="max-w-xl relative">
-                <label className="block text-sm font-bold text-slate-700 mb-2">Search User by Email</label>
+                <label className="block text-sm font-bold text-slate-700 mb-2">Search Registered Users by Email</label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                   <input 
                     type="text" 
                     value={query}
-                    onChange={(e) => setQuery(e.target.value)}
+                    onChange={(e) => {
+                      setQuery(e.target.value);
+                      setSelectedUser(null);
+                    }}
                     onFocus={() => {
                       if (searchResults.length > 0) setIsSearching(false); // Just to ensure dropdown logic
                     }}
-                    placeholder="student@example.com..." 
+                    placeholder="Search registered accounts..." 
                     className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-600 focus:border-transparent outline-none transition-all"
                   />
                   {isSearching && <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-indigo-600 font-bold">Searching...</div>}
                 </div>
                 
                 {/* Dropdown Recommendations */}
-                {query.length >= 3 && searchResults.length > 0 && (
+                {query.length >= 3 && searchResults.length > 0 && !selectedUser && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden max-h-60 overflow-y-auto">
                     {searchResults.map((user) => (
                       <div 
@@ -141,6 +147,7 @@ export default function AddStudentsPage() {
                         className="flex items-center justify-between p-3 hover:bg-indigo-50 cursor-pointer border-b border-slate-100 last:border-0 transition-colors"
                         onClick={() => {
                           setQuery(user.email);
+                          setSelectedUser(user);
                           setSearchResults([]); // Close dropdown
                         }}
                       >
@@ -158,21 +165,16 @@ export default function AddStudentsPage() {
                   </div>
                 )}
                 
-                {query.length >= 3 && !isSearching && searchResults.length === 0 && (
-                  <div className="absolute z-10 w-full mt-1 p-4 bg-white border border-slate-200 shadow-xl rounded-xl text-center text-sm text-slate-500">
-                    No users found matching "{query}". You can still send an invite.
-                  </div>
-                )}
               </div>
 
               <div className="max-w-xl pt-2">
                 <button 
-                  onClick={() => handleAddUser(query)} 
-                  disabled={!query.includes('@')}
+                  onClick={handleAddUser} 
+                  disabled={!selectedUser}
                   className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   <PlusCircle size={18} />
-                  Add or Invite Student
+                  {selectedUser ? `Add ${selectedUser.name || selectedUser.email} as Student` : "Select a registered user to add"}
                 </button>
               </div>
             </div>

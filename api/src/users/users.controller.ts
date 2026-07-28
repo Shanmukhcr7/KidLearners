@@ -10,7 +10,15 @@ export class UsersController {
   @UseGuards(FirebaseAuthGuard)
   async searchUsers(@Request() req: any, @Query('email') email: string) {
     const role = req.user.role;
-    return this.usersService.searchUsersByEmail(email, role);
+    console.log(`[API] searchUsers called with email=${email}, role=${role}`);
+    try {
+      const results = await this.usersService.searchUsersByEmail(email, role);
+      console.log(`[API] searchUsers returned ${results.length} results`);
+      return results;
+    } catch (e) {
+      console.error(`[API] searchUsers error:`, e.message);
+      throw e;
+    }
   }
 
   @Get()

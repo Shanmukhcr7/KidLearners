@@ -69,16 +69,19 @@ export class UsersService {
     const snapshot = await db.collection('users')
       .where('email', '>=', normalizedQuery)
       .where('email', '<=', endQuery)
-      .limit(10)
+      .limit(50)
       .get();
     
     const users: any[] = [];
     snapshot.forEach((doc: any) => {
       const data = doc.data();
-      users.push({ id: doc.id, email: data.email, name: data.name });
+      // Only return users who have the default 'user' role (not already admins/students/teachers)
+      if (data.role === 'user') {
+        users.push({ id: doc.id, email: data.email, name: data.name });
+      }
     });
     
-    return users;
+    return users.slice(0, 10);
   }
 
   async setRole(uid: string, role: string) {
