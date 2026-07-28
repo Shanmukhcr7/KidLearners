@@ -26,4 +26,33 @@ export class CoursesController {
     const role = req.user.role;
     return this.coursesService.updateCourseStatus(id, body.status, role);
   }
+
+  @Post(':id/modules')
+  @UseGuards(FirebaseAuthGuard)
+  async addModule(@Request() req: any, @Param('id') id: string, @Body() body: { title: string, description: string }) {
+    return this.coursesService.addModule(id, body.title, body.description, req.user.role);
+  }
+
+  @Get(':id/modules')
+  @UseGuards(FirebaseAuthGuard)
+  async getModules(@Param('id') id: string) {
+    return this.coursesService.getModules(id);
+  }
+
+  @Post(':courseId/modules/:moduleId/lessons')
+  @UseGuards(FirebaseAuthGuard)
+  async addLesson(
+    @Request() req: any,
+    @Param('courseId') courseId: string, 
+    @Param('moduleId') moduleId: string, 
+    @Body() body: { title: string, content: string, type: string }
+  ) {
+    return this.coursesService.addLesson(courseId, moduleId, body.title, body.content, body.type, req.user.role);
+  }
+
+  @Get(':courseId/modules/:moduleId/lessons')
+  @UseGuards(FirebaseAuthGuard)
+  async getLessons(@Param('courseId') courseId: string, @Param('moduleId') moduleId: string) {
+    return this.coursesService.getLessons(courseId, moduleId);
+  }
 }

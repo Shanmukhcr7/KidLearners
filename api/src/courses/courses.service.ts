@@ -54,4 +54,81 @@ export class CoursesService {
     await db.collection('courses').doc(courseId).update({ status });
     return { success: true };
   }
+
+  async addModule(courseId: string, title: string, description: string, requestUserRole: string) {
+    if (requestUserRole !== 'super_admin') {
+      throw new UnauthorizedException('Only Super Admins can edit courses');
+    }
+    const db = this.firebaseService.getFirestore();
+    
+    // Get current modules count
+    const courseRef = db.collection('courses').doc(courseId);
+    const courseDoc = await courseRef.get();
+    const order = courseDoc.exists ? (courseDoc.data()?.modules || 0) + 1 : 1;
+
+    const moduleRef = db.collection(`courses/${courseId}/modules`).doc();
+    const newModule = {
+      id: moduleRef.id,
+      title,
+      description,
+      order,
+      createdAt: new Date(),
+    };
+    
+    await moduleRef.set(newModule);
+    await courseRef.update({ modules: order });
+    
+    return newModule;
+  }
+
+  async getModules(courseId: string) {
+    const db = this.firebaseService.getFirestore();
+    const snapshot = await db.collection(`courses/${courseId}/modules`).orderBy('order', 'asc').get();
+    
+    const modules: any[] = [];
+    snapshot.forEach((doc: any) => modules.push(doc.data()));
+    return modules;
+  }
+
+  async addLesson(courseId: string, moduleId: string, title: string, content: string, type: string, requestUserRole: string) {
+    if (requestUserRole !== 'super_admin') {
+      throw new UnauthorizedException('Only Super Admins can edit courses');
+    }
+    const db = this.firebaseService.getFirestore();
+    
+    const moduleRef = db.collection(`courses/${courseId}/modules`).doc(moduleId);
+    const moduleDoc = await moduleRef.get();
+    const order = moduleDoc.exists ? (moduleDoc.data()?.lessons || 0) + 1 : 1;
+
+    const lessonRef = db.collection(`courses/${courseId}/modules/${moduleId}/lessons`).doc();
+    const newLesson = {
+      id: lessonRef.id,
+      title,
+      content,
+      type, // 'video', 'text', 'quiz'
+      order,
+      createdAt: new Date(),
+    };
+    
+    await lessonRef.set(newLesson);
+    await moduleRef.update({ lessons: order });
+    
+    // Update global course lesson count
+    const courseRef = db.collection('courses').doc(courseId);
+    const courseDoc = await courseRef.get();
+    if (courseDoc.exists) {
+      await courseRef.update({ lessons: (courseDoc.data()?.lessons || 0) + 1 });
+    }
+    
+    return newLesson;
+  }
+
+  async getLessons(courseId: string, moduleId: string) {
+    const db = this.firebaseService.getFirestore();
+    const snapshot = await db.collection(`courses/${courseId}/modules/${moduleId}/lessons`).orderBy('order', 'asc').get();
+    
+    const lessons: any[] = [];
+    snapshot.forEach((doc: any) => lessons.push(doc.data()));
+    return lessons;
+  }
 }
