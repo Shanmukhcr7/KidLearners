@@ -14,11 +14,19 @@ import { LeaderboardsModule } from './leaderboards/leaderboards.module';
 import { GalleryModule } from './gallery/gallery.module';
 import { QuestionsModule } from './questions/questions.module';
 import { ConfigModule } from '@nestjs/config';
+import { SupportModule } from './support/support.module';
+import { AnnouncementsModule } from './announcements/announcements.module';
+import { EventsModule } from './events/events.module';
+import { GamificationModule } from './gamification/gamification.module';
+import { CertificatesModule } from './certificates/certificates.module';
+import { CrmModule } from './crm/crm.module';
+import { SettingsModule } from './settings/settings.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    FirebaseModule, UsersModule, SchoolsModule, DemoModule, AdminModule, CoursesModule, TasksModule, ExamsModule, AuditLogsModule, LeaderboardsModule, GalleryModule, QuestionsModule
+    FirebaseModule, UsersModule, SchoolsModule, DemoModule, AdminModule, CoursesModule, TasksModule, ExamsModule, AuditLogsModule, LeaderboardsModule, GalleryModule, QuestionsModule, SupportModule, AnnouncementsModule, EventsModule, GamificationModule, CertificatesModule, CrmModule, SettingsModule, AnalyticsModule
   ],
   controllers: [AppController],
   providers: [AppService],

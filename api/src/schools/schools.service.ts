@@ -315,28 +315,11 @@ export class SchoolsService {
     }
     const db = this.firebaseService.getFirestore();
     
-    // In a real scenario, this would join with Stripe or query a 'subscriptions' collection.
-    // For now, we fetch schools and generate dummy subscription data to demonstrate the UI.
-    const snapshot = await db.collection('schools').get();
+    const snapshot = await db.collection('subscriptions').get();
     
     const subscriptions: any[] = [];
     snapshot.forEach((doc: any) => {
-      const data = doc.data();
-      // Generate deterministic mock data based on school ID
-      const mockPlan = doc.id.charCodeAt(0) % 2 === 0 ? 'Enterprise' : 'Pro';
-      const mockStatus = doc.id.charCodeAt(1) % 5 === 0 ? 'Past Due' : 'Active';
-      const mockAmount = mockPlan === 'Enterprise' ? 999 : 299;
-      
-      subscriptions.push({
-        id: `sub_${doc.id}`,
-        schoolId: doc.id,
-        schoolName: data.name,
-        plan: mockPlan,
-        status: mockStatus,
-        amount: mockAmount,
-        billingCycle: 'Monthly',
-        nextBillingDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 14).toISOString(), // 14 days from now
-      });
+      subscriptions.push({ id: doc.id, ...doc.data() });
     });
     
     return subscriptions;

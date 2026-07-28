@@ -115,7 +115,7 @@ export default function AddStudentsPage() {
         <div className="p-6 md:p-8">
           {activeTab === "search" && (
             <div className="space-y-6">
-              <div className="max-w-xl">
+              <div className="max-w-xl relative">
                 <label className="block text-sm font-bold text-slate-700 mb-2">Search User by Email</label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -123,45 +123,58 @@ export default function AddStudentsPage() {
                     type="text" 
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
+                    onFocus={() => {
+                      if (searchResults.length > 0) setIsSearching(false); // Just to ensure dropdown logic
+                    }}
                     placeholder="student@example.com..." 
                     className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-600 focus:border-transparent outline-none transition-all"
                   />
                   {isSearching && <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-indigo-600 font-bold">Searching...</div>}
                 </div>
-              </div>
-
-              {searchResults.length > 0 && (
-                <div className="max-w-xl border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-100">
-                  {searchResults.map((user) => (
-                    <div key={user.id} className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center font-bold">
-                          {user.name ? user.name.charAt(0).toUpperCase() : <Mail size={16} />}
-                        </div>
-                        <div>
-                          <div className="font-bold text-sm text-slate-900">{user.name || "Unknown Name"}</div>
-                          <div className="text-xs text-slate-500">{user.email}</div>
+                
+                {/* Dropdown Recommendations */}
+                {query.length >= 3 && searchResults.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden max-h-60 overflow-y-auto">
+                    {searchResults.map((user) => (
+                      <div 
+                        key={user.id} 
+                        className="flex items-center justify-between p-3 hover:bg-indigo-50 cursor-pointer border-b border-slate-100 last:border-0 transition-colors"
+                        onClick={() => {
+                          setQuery(user.email);
+                          setSearchResults([]); // Close dropdown
+                        }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center font-bold text-xs">
+                            {user.name ? user.name.charAt(0).toUpperCase() : <Mail size={14} />}
+                          </div>
+                          <div>
+                            <div className="font-bold text-sm text-slate-900">{user.email}</div>
+                            <div className="text-xs text-slate-500">{user.name || "Unknown Name"}</div>
+                          </div>
                         </div>
                       </div>
-                      <button 
-                        onClick={() => handleAddUser(user.email)}
-                        className="px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white rounded-lg text-sm font-bold transition-colors"
-                      >
-                        Add to School
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+                
+                {query.length >= 3 && !isSearching && searchResults.length === 0 && (
+                  <div className="absolute z-10 w-full mt-1 p-4 bg-white border border-slate-200 shadow-xl rounded-xl text-center text-sm text-slate-500">
+                    No users found matching "{query}". You can still send an invite.
+                  </div>
+                )}
+              </div>
 
-              {query.length >= 3 && !isSearching && searchResults.length === 0 && (
-                <div className="text-sm text-slate-500 max-w-xl p-4 bg-slate-50 rounded-xl text-center border border-slate-100">
-                  No users found matching "{query}". 
-                  <button onClick={() => handleAddUser(query)} className="block w-full mt-3 py-2 bg-indigo-600 text-white rounded-lg font-bold">
-                    Send Email Invite Anyway
-                  </button>
-                </div>
-              )}
+              <div className="max-w-xl pt-2">
+                <button 
+                  onClick={() => handleAddUser(query)} 
+                  disabled={!query.includes('@')}
+                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <PlusCircle size={18} />
+                  Add or Invite Student
+                </button>
+              </div>
             </div>
           )}
 

@@ -55,8 +55,8 @@ export class UsersService {
   }
 
   async searchUsersByEmail(emailQuery: string, requestUserRole: string) {
-    if (requestUserRole !== 'super_admin') {
-      throw new UnauthorizedException('Only Super Admins can search users globally');
+    if (requestUserRole !== 'super_admin' && requestUserRole !== 'school_admin') {
+      throw new UnauthorizedException('Only Admins can search users globally');
     }
 
     if (!emailQuery || emailQuery.length < 3) {
@@ -64,10 +64,10 @@ export class UsersService {
     }
 
     const db = this.firebaseService.getFirestore();
-    // In Firestore, we can do a prefix search using >= and <=
-    const endQuery = emailQuery + '\uf8ff';
+    const normalizedQuery = emailQuery.toLowerCase();
+    const endQuery = normalizedQuery + '\uf8ff';
     const snapshot = await db.collection('users')
-      .where('email', '>=', emailQuery)
+      .where('email', '>=', normalizedQuery)
       .where('email', '<=', endQuery)
       .limit(10)
       .get();
@@ -96,19 +96,32 @@ export class UsersService {
   }
 
   async inviteStudent(email: string, requestUserRole: string, requestUserSchoolId: string) {
-    if (requestUserRole !== 'school_admin') {
-      throw new UnauthorizedException('Only School Admins can invite students');
+    if (requestUserRole !== 'school_admin' && requestUserRole !== 'super_admin') {
+      throw new UnauthorizedException('Only Admins can invite students');
     }
     
-    // In a real app, this would send an email. For now, we create a pending record.
     const db = this.firebaseService.getFirestore();
-    await db.collection('invites').add({
-      email,
-      schoolId: requestUserSchoolId,
-      status: 'pending',
-      createdAt: new Date(),
-    });
 
-    return { success: true, message: `Invite sent to ${email}` };
+    const usersSnapshot = await db.collection('users').where('email', '==', email).get();
+
+    if (!usersSnapshot.empty) {
+      const userDoc = usersSnapshot.docs[0];
+      await userDoc.ref.update({
+        schoolId: requestUserSchoolId,
+        role: 'student'
+      });
+      const auth = this.firebaseService.getAuth();
+      await auth.setCustomUserClaims(userDoc.id, { role: 'student', schoolId: requestUserSchoolId });
+      
+      return { success: true, message: `Added ${email} to school directly.` };
+    } else {
+      await db.collection('invites').add({
+        email,
+        schoolId: requestUserSchoolId,
+        status: 'pending',
+        createdAt: new Date(),
+      });
+      return { success: true, message: `Invite sent to ${email}` };
+    }
   }
 }

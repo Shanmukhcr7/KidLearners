@@ -8,6 +8,7 @@ import Link from "next/link";
 export default function SchoolStudentsPage() {
   const [students, setStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchStudents();
@@ -41,6 +42,12 @@ export default function SchoolStudentsPage() {
     }
   }
 
+  const filteredStudents = students.filter(s => 
+    (s.name && s.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (s.email && s.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (s.rollNumber && String(s.rollNumber).toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -60,6 +67,8 @@ export default function SchoolStudentsPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input 
               type="text" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by name, roll no, or email..." 
               className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
             />
@@ -86,12 +95,12 @@ export default function SchoolStudentsPage() {
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-slate-500">Loading directory...</td>
                 </tr>
-              ) : students.length === 0 ? (
+              ) : filteredStudents.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-slate-500">No students enrolled yet.</td>
+                  <td colSpan={5} className="px-6 py-12 text-center text-slate-500">No students found.</td>
                 </tr>
               ) : (
-                students.map((student) => (
+                filteredStudents.map((student) => (
                   <tr key={student.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">

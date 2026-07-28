@@ -1,75 +1,98 @@
 "use client";
 
-import { Building, GraduationCap, ArrowUpRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { auth } from "@/utils/firebase";
+import { Building, GraduationCap, Users, BarChart3, Loader2 } from "lucide-react";
 
 export default function AdminSchoolsAnalyticsPage() {
+  const [schools, setSchools] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, []);
+
+  async function fetchAnalytics() {
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + "/analytics/schools", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setSchools(await res.json());
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (loading) return <div className="p-12 text-center text-slate-500"><Loader2 size={32} className="animate-spin mx-auto mb-4" /> Aggregating school data...</div>;
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">School Analytics</h2>
-          <p className="text-sm text-slate-500 mt-1">Granular usage statistics broken down by school organization.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <select className="border border-slate-300 rounded-lg p-2 text-sm bg-white font-medium shadow-sm w-64">
-            <option>All Schools</option>
-            <option>Springfield Elementary</option>
-            <option>Oakridge High</option>
-          </select>
+          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Schools Performance Matrix</h2>
+          <p className="text-sm text-slate-500 mt-1">Compare engagement and performance across all onboarded schools.</p>
         </div>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200">
-                <th className="px-6 py-4">School Organization</th>
-                <th className="px-6 py-4 text-center">Active Students</th>
-                <th className="px-6 py-4 text-center">Teachers</th>
-                <th className="px-6 py-4 text-center">Avg Score</th>
-                <th className="px-6 py-4 text-center">Completion Rate</th>
-                <th className="px-6 py-4 text-right">View Detail</th>
+                <th className="px-6 py-4">School</th>
+                <th className="px-6 py-4">Students</th>
+                <th className="px-6 py-4">Teachers</th>
+                <th className="px-6 py-4">Avg Health Score</th>
+                <th className="px-6 py-4">Completion Rate</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
-              {[
-                { name: "Springfield Elementary", students: 1204, teachers: 45, score: 88, completion: 76 },
-                { name: "Oakridge High", students: 3450, teachers: 120, score: 82, completion: 65 },
-                { name: "St. Jude Academy", students: 850, teachers: 32, score: 91, completion: 89 },
-                { name: "Lincoln Middle School", students: 2100, teachers: 80, score: 78, completion: 55 },
-              ].map((school, idx) => (
-                <tr key={idx} className="hover:bg-slate-50 transition-colors">
+            <tbody className="divide-y divide-slate-100 bg-white">
+              {schools.map((school) => (
+                <tr key={school.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-                        <Building size={20} />
+                      <div className="w-8 h-8 rounded bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                        <Building size={16} />
                       </div>
-                      <div className="font-bold text-slate-900">{school.name}</div>
+                      <span className="font-bold text-slate-900">{school.name}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-center font-medium text-slate-700">{school.students.toLocaleString()}</td>
-                  <td className="px-6 py-4 text-center font-medium text-slate-700">{school.teachers}</td>
-                  <td className="px-6 py-4 text-center">
-                    <span className={`px-2 py-1 rounded text-xs font-bold ${school.score > 85 ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                      {school.score}%
+                  <td className="px-6 py-4">
+                    <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                      <GraduationCap size={16} className="text-slate-400" />
+                      {school.students.toLocaleString()}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-full max-w-[100px] bg-slate-100 rounded-full h-2">
-                        <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${school.completion}%` }}></div>
+                  <td className="px-6 py-4">
+                    <span className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                      <Users size={16} className="text-slate-400" />
+                      {school.teachers.toLocaleString()}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <div className="w-16 bg-slate-100 rounded-full h-2">
+                        <div className={`h-2 rounded-full ${school.score > 80 ? 'bg-green-500' : school.score > 60 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${school.score}%` }}></div>
                       </div>
-                      <span className="text-xs font-bold text-slate-600">{school.completion}%</span>
+                      <span className="text-xs font-bold text-slate-700">{school.score}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <button className="text-slate-400 hover:text-blue-600 p-2 rounded-md hover:bg-blue-50 transition-colors">
-                      <ArrowUpRight size={18} />
-                    </button>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                      <BarChart3 size={16} className="text-slate-400" />
+                      {school.completion}%
+                    </div>
                   </td>
                 </tr>
               ))}
+              {schools.length === 0 && (
+                <tr><td colSpan={5} className="text-center py-8 text-slate-500">No schools found</td></tr>
+              )}
             </tbody>
           </table>
         </div>

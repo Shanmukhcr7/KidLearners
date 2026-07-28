@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { auth } from "@/utils/firebase";
-import { CreditCard, Building, Calendar, DollarSign, Search, AlertTriangle, CheckCircle } from "lucide-react";
+import { CreditCard, Building, Calendar, DollarSign, Search, AlertTriangle, CheckCircle, Loader2 } from "lucide-react";
 
 interface Subscription {
   id: string;
@@ -40,7 +40,7 @@ export default function AdminSchoolsSubscriptionsPage() {
     }
   }
 
-  if (loading) return <div className="p-8 text-center text-slate-500">Loading subscriptions...</div>;
+  if (loading) return <div className="p-8 text-center text-slate-500 flex flex-col items-center"><Loader2 size={32} className="animate-spin mb-4" /> Loading subscriptions...</div>;
 
   const totalMRR = subscriptions.filter(s => s.status === 'Active').reduce((sum, s) => sum + s.amount, 0);
   const pastDue = subscriptions.filter(s => s.status === 'Past Due').length;
@@ -111,7 +111,7 @@ export default function AdminSchoolsSubscriptionsPage() {
             </thead>
             <tbody className="divide-y divide-slate-200 bg-white">
               {subscriptions.length === 0 ? (
-                <tr><td colSpan={5} className="text-center py-12 text-slate-500">No subscriptions found.</td></tr>
+                <tr><td colSpan={5} className="text-center py-12 text-slate-500 font-medium">No real subscriptions found. Awaiting Stripe integration.</td></tr>
               ) : subscriptions.map((sub) => (
                 <tr key={sub.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4">
