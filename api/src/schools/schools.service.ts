@@ -241,7 +241,6 @@ export class SchoolsService {
     
     // Check limit
     if (inviteData?.currentUsage >= inviteData?.limit) {
-      await inviteRef.update({ status: 'Limit Reached' });
       throw new UnauthorizedException('Invite link limit reached');
     }
 
@@ -261,5 +260,85 @@ export class SchoolsService {
     await inviteRef.update({ currentUsage: (inviteData?.currentUsage || 0) + 1 });
 
     return { success: true, schoolId: inviteData?.schoolId };
+  }
+
+  async getSchoolRequests(requestUserRole: string) {
+    if (requestUserRole !== 'super_admin') {
+      throw new UnauthorizedException('Only Super Admins can view school requests');
+    }
+    const db = this.firebaseService.getFirestore();
+    const snapshot = await db.collection('school_requests').orderBy('createdAt', 'desc').get();
+    
+    const requests: any[] = [];
+    snapshot.forEach((doc: any) => requests.push({ id: doc.id, ...doc.data() }));
+    return requests;
+  }
+
+  async approveSchoolRequest(id: string, requestUserRole: string) {
+    if (requestUserRole !== 'super_admin') {
+      throw new UnauthorizedException('Only Super Admins can approve school requests');
+    }
+    const db = this.firebaseService.getFirestore();
+    const requestRef = db.collection('school_requests').doc(id);
+    const requestDoc = await requestRef.get();
+    
+    if (!requestDoc.exists) throw new NotFoundException('Request not found');
+    
+    const data = requestDoc.data();
+    
+    // Create actual school
+    const schoolRes = await this.createSchool(data?.name, data?.domain, data?.adminEmail, 'super_admin');
+    
+    // Update request status
+    await requestRef.update({ status: 'Approved', updatedAt: new Date() });
+    
+    return { success: true, school: schoolRes };
+  }
+
+  async rejectSchoolRequest(id: string, requestUserRole: string) {
+    if (requestUserRole !== 'super_admin') {
+      throw new UnauthorizedException('Only Super Admins can reject school requests');
+    }
+    const db = this.firebaseService.getFirestore();
+    const requestRef = db.collection('school_requests').doc(id);
+    await requestRef.update({ 
+      status: 'Rejected', 
+      updatedAt: new Date() 
+    });
+    
+    return { success: true };
+  }
+
+  async getSubscriptions(requestUserRole: string) {
+    if (requestUserRole !== 'super_admin') {
+      throw new UnauthorizedException('Only Super Admins can view subscriptions');
+    }
+    const db = this.firebaseService.getFirestore();
+    
+    // In a real scenario, this would join with Stripe or query a 'subscriptions' collection.
+    // For now, we fetch schools and generate dummy subscription data to demonstrate the UI.
+    const snapshot = await db.collection('schools').get();
+    
+    const subscriptions: any[] = [];
+    snapshot.forEach((doc: any) => {
+      const data = doc.data();
+      // Generate deterministic mock data based on school ID
+      const mockPlan = doc.id.charCodeAt(0) % 2 === 0 ? 'Enterprise' : 'Pro';
+      const mockStatus = doc.id.charCodeAt(1) % 5 === 0 ? 'Past Due' : 'Active';
+      const mockAmount = mockPlan === 'Enterprise' ? 999 : 299;
+      
+      subscriptions.push({
+        id: `sub_${doc.id}`,
+        schoolId: doc.id,
+        schoolName: data.name,
+        plan: mockPlan,
+        status: mockStatus,
+        amount: mockAmount,
+        billingCycle: 'Monthly',
+        nextBillingDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 14).toISOString(), // 14 days from now
+      });
+    });
+    
+    return subscriptions;
   }
 }

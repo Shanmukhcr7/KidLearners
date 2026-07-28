@@ -73,4 +73,32 @@ export class SchoolsController {
     const role = req.user.role;
     return this.schoolsService.updateFeatures(id, features, role);
   }
+
+  @Get('onboarding/requests')
+  @UseGuards(FirebaseAuthGuard)
+  async getSchoolRequests(@Request() req: any) {
+    const role = req.user.role;
+    return this.schoolsService.getSchoolRequests(role);
+  }
+
+  @Post('onboarding/requests/:id/approve')
+  @UseGuards(FirebaseAuthGuard)
+  async approveSchoolRequest(@Request() req: any, @Param('id') id: string) {
+    const role = req.user.role;
+    return this.schoolsService.approveSchoolRequest(id, role);
+  }
+
+  @Post('onboarding/requests/:id/reject')
+  @UseGuards(FirebaseAuthGuard)
+  async rejectSchoolRequest(@Request() req: any, @Param('id') id: string) {
+    const role = req.user.role;
+    return this.schoolsService.rejectSchoolRequest(id, role);
+  }
+
+  @Get('subscriptions')
+  @UseGuards(FirebaseAuthGuard)
+  async getSubscriptions(@Request() req: any) {
+    const role = req.user.role;
+    return this.schoolsService.getSubscriptions(role);
+  }
 }
