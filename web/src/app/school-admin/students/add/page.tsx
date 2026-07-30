@@ -64,11 +64,11 @@ export default function AddStudentsPage() {
         body: JSON.stringify({ email: selectedUser.email })
       });
       if (res.ok) {
-        alert("Student added successfully!");
+        alert("Invite sent successfully!");
         setQuery("");
         setSelectedUser(null);
       } else {
-        alert("Failed to add student.");
+        alert("Failed to send invite.");
       }
     } catch (e) {
       console.error(e);
@@ -174,7 +174,7 @@ export default function AddStudentsPage() {
                   className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   <PlusCircle size={18} />
-                  {selectedUser ? `Add ${selectedUser.name || selectedUser.email} as Student` : "Select a registered user to add"}
+                  {selectedUser ? `Send Invite to ${selectedUser.name || selectedUser.email}` : "Select a registered user to invite"}
                 </button>
               </div>
             </div>

@@ -60,6 +60,11 @@ export function Navbar() {
                     Dashboard
                   </Link>
                 )}
+                {role === "user" && (
+                  <Link href="/user" className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-sm transition-colors whitespace-nowrap">
+                    My Invites
+                  </Link>
+                )}
                 {role === "school_admin" && (
                   <Link href="/school-admin" className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-sm transition-colors whitespace-nowrap">
                     Portal

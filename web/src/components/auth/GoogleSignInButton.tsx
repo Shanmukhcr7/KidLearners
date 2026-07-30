@@ -46,8 +46,8 @@ export default function GoogleSignInButton() {
           } else if (data.role === "student") {
             router.push("/student");
           } else {
-            // Normal 'user' stays on public site (maybe reload to show logged in state)
-            window.location.reload();
+            // Normal 'user' goes to their invite dashboard
+            router.push("/user");
           }
         } else {
           // Fallback if backend is down

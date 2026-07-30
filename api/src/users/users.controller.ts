@@ -1,4 +1,4 @@
-import { Controller, Post, Get, UseGuards, Request, Body, Put, Query } from '@nestjs/common';
+import { Controller, Post, Get, UseGuards, Request, Body, Put, Query, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { FirebaseAuthGuard } from '../firebase/firebase.guard';
 
@@ -31,10 +31,7 @@ export class UsersController {
   @Post('sync')
   @UseGuards(FirebaseAuthGuard)
   async syncUser(@Request() req: any) {
-    // req.user contains the decoded Firebase JWT injected by our FirebaseAuthGuard
     const { uid, email, name } = req.user;
-    
-    // This will create a new user doc in Firestore if they don't exist
     return this.usersService.syncUser(uid, email, name || 'Student');
   }
 
@@ -42,8 +39,8 @@ export class UsersController {
   @UseGuards(FirebaseAuthGuard)
   async inviteStudent(@Request() req: any, @Body('email') email: string) {
     const role = req.user.role;
-    // req.user.schoolId would be injected if we saved it in claims, for now we pass a dummy ID
-    const schoolId = req.user.schoolId || 'default_school_id'; 
+    const schoolId = req.user.schoolId; 
+    if (!schoolId) throw new Error("School ID missing on user token");
     return this.usersService.inviteStudent(email, role, schoolId);
   }
 
@@ -51,5 +48,26 @@ export class UsersController {
   @UseGuards(FirebaseAuthGuard)
   async updateRole(@Body('uid') uid: string, @Body('role') role: string) {
     return this.usersService.setRole(uid, role);
+  }
+
+  @Get('my-invites')
+  @UseGuards(FirebaseAuthGuard)
+  async getMyInvites(@Request() req: any) {
+    const { uid, email } = req.user;
+    return this.usersService.getStudentInvites(uid, email);
+  }
+
+  @Post('my-invites/:id/accept')
+  @UseGuards(FirebaseAuthGuard)
+  async acceptInvite(@Request() req: any, @Param('id') id: string) {
+    const uid = req.user.uid;
+    return this.usersService.acceptStudentInvite(id, uid);
+  }
+
+  @Post('my-invites/:id/reject')
+  @UseGuards(FirebaseAuthGuard)
+  async rejectInvite(@Request() req: any, @Param('id') id: string) {
+    const uid = req.user.uid;
+    return this.usersService.rejectStudentInvite(id, uid);
   }
 }

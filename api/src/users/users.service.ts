@@ -136,26 +136,86 @@ export class UsersService {
     
     const db = this.firebaseService.getFirestore();
 
+    // Get school name to display in the invite
+    const schoolDoc = await db.collection('schools').doc(requestUserSchoolId).get();
+    const schoolName = schoolDoc.exists ? schoolDoc.data().name : 'A School';
+
     const usersSnapshot = await db.collection('users').where('email', '==', email).get();
 
     if (!usersSnapshot.empty) {
+      // User exists, create an invite in student_invites
       const userDoc = usersSnapshot.docs[0];
-      await userDoc.ref.update({
-        schoolId: requestUserSchoolId,
-        role: 'student'
-      });
-      const auth = this.firebaseService.getAuth();
-      await auth.setCustomUserClaims(userDoc.id, { role: 'student', schoolId: requestUserSchoolId });
-      
-      return { success: true, message: `Added ${email} to school directly.` };
-    } else {
-      await db.collection('invites').add({
+      await db.collection('student_invites').add({
+        userId: userDoc.id,
         email,
         schoolId: requestUserSchoolId,
+        schoolName,
+        status: 'pending',
+        createdAt: new Date(),
+      });
+      
+      return { success: true, message: `Invite sent to ${email}` };
+    } else {
+      // User doesn't exist yet, we still store it by email so when they register we can link it (or just store it in invites)
+      await db.collection('student_invites').add({
+        email,
+        schoolId: requestUserSchoolId,
+        schoolName,
         status: 'pending',
         createdAt: new Date(),
       });
       return { success: true, message: `Invite sent to ${email}` };
     }
+  }
+
+  async getStudentInvites(uid: string, email: string) {
+    const db = this.firebaseService.getFirestore();
+    // We check both by userId and email in case the invite was created before they registered
+    const snapshot = await db.collection('student_invites')
+      .where('email', '==', email)
+      .where('status', '==', 'pending')
+      .get();
+    
+    const invites: any[] = [];
+    snapshot.forEach(doc => {
+      invites.push({ id: doc.id, ...doc.data() });
+    });
+    return invites;
+  }
+
+  async acceptStudentInvite(inviteId: string, uid: string) {
+    const db = this.firebaseService.getFirestore();
+    const inviteRef = db.collection('student_invites').doc(inviteId);
+    const inviteDoc = await inviteRef.get();
+    
+    if (!inviteDoc.exists) throw new Error('Invite not found');
+    const inviteData = inviteDoc.data();
+    if (inviteData.status !== 'pending') throw new Error('Invite is not pending');
+    
+    // Update invite status
+    await inviteRef.update({ status: 'accepted' });
+    
+    // Update user profile
+    const userRef = db.collection('users').doc(uid);
+    await userRef.update({
+      role: 'student',
+      schoolId: inviteData.schoolId
+    });
+    
+    // Update custom claims
+    const auth = this.firebaseService.getAuth();
+    await auth.setCustomUserClaims(uid, { role: 'student', schoolId: inviteData.schoolId });
+    
+    return { success: true };
+  }
+
+  async rejectStudentInvite(inviteId: string, uid: string) {
+    const db = this.firebaseService.getFirestore();
+    const inviteRef = db.collection('student_invites').doc(inviteId);
+    
+    // Simply mark it as rejected
+    await inviteRef.update({ status: 'rejected' });
+    
+    return { success: true };
   }
 }
