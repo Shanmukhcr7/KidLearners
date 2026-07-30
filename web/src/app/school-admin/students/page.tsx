@@ -23,8 +23,13 @@ export default function SchoolStudentsPage() {
       let tokenResult = await user.getIdTokenResult();
       let schoolId = tokenResult.claims.schoolId;
       
-      // Auto-heal: If schoolId is missing, the token might be stale. Force a refresh from Firebase Auth.
+      // Auto-heal: If schoolId is missing, the backend might have lost it.
+      // Sync with backend to restore it, then force a token refresh.
       if (!schoolId) {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/users/sync`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${tokenResult.token}` }
+        });
         tokenResult = await user.getIdTokenResult(true);
         schoolId = tokenResult.claims.schoolId;
       }
