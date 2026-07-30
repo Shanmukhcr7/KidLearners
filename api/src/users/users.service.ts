@@ -138,7 +138,7 @@ export class UsersService {
 
     // Get school name to display in the invite
     const schoolDoc = await db.collection('schools').doc(requestUserSchoolId).get();
-    const schoolName = schoolDoc.exists ? schoolDoc.data().name : 'A School';
+    const schoolName = schoolDoc.exists ? (schoolDoc.data()?.name || 'A School') : 'A School';
 
     const usersSnapshot = await db.collection('users').where('email', '==', email).get();
 
@@ -190,6 +190,7 @@ export class UsersService {
     
     if (!inviteDoc.exists) throw new Error('Invite not found');
     const inviteData = inviteDoc.data();
+    if (!inviteData) throw new Error('Invite data is missing');
     if (inviteData.status !== 'pending') throw new Error('Invite is not pending');
     
     // Update invite status
