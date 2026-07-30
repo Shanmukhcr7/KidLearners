@@ -20,11 +20,18 @@ export default function SchoolStudentsPage() {
       const user = auth.currentUser;
       if (!user) return;
       
-      const tokenResult = await user.getIdTokenResult();
-      const schoolId = tokenResult.claims.schoolId;
+      let tokenResult = await user.getIdTokenResult();
+      let schoolId = tokenResult.claims.schoolId;
+      
+      // Auto-heal: If schoolId is missing, the token might be stale. Force a refresh from Firebase Auth.
+      if (!schoolId) {
+        tokenResult = await user.getIdTokenResult(true);
+        schoolId = tokenResult.claims.schoolId;
+      }
       
       if (!schoolId) {
-        console.error("No schoolId found on admin token");
+        console.error("No schoolId found on admin token even after refresh");
+        setLoading(false);
         return;
       }
 

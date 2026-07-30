@@ -25,11 +25,18 @@ export class UsersService {
         return { role: 'user', isNew: true };
       }
       // Return existing user data
-      const dbRole = doc.data()?.role;
+      const userData = doc.data();
+      const dbRole = userData?.role;
+      const dbSchoolId = userData?.schoolId;
+      
+      const claims: any = { role: dbRole };
+      if (dbSchoolId) {
+        claims.schoolId = dbSchoolId;
+      }
       
       // Ensure Firebase Auth custom claims match the database (crucial for manual DB edits)
       const auth = this.firebaseService.getAuth();
-      await auth.setCustomUserClaims(uid, { role: dbRole });
+      await auth.setCustomUserClaims(uid, claims);
       
       return { role: dbRole, isNew: false };
     } catch (err) {
