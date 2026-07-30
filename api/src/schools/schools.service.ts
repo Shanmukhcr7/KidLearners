@@ -91,13 +91,15 @@ export class SchoolsService {
 
     const db = this.firebaseService.getFirestore();
     const snapshot = await db.collection('users')
-      .where('role', '==', 'student')
       .where('schoolId', '==', schoolId)
       .get();
     
     const students: any[] = [];
     snapshot.forEach((doc: any) => {
-      students.push({ id: doc.id, ...doc.data() });
+      const data = doc.data();
+      if (data.role === 'student') {
+        students.push({ id: doc.id, ...data });
+      }
     });
     
     return students;

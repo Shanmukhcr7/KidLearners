@@ -9,11 +9,13 @@ export default function DemoRequestsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchRequests = async () => {
-      if (!auth.currentUser) return;
-      const token = await auth.currentUser.getIdToken();
-      
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       try {
+        const token = await user.getIdToken();
         const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + "/demo-requests", {
           headers: {
             "Authorization": `Bearer ${token}`
@@ -28,14 +30,9 @@ export default function DemoRequestsPage() {
       } finally {
         setLoading(false);
       }
-    };
+    });
     
-    // Slight delay to ensure auth is loaded
-    const timer = setTimeout(() => {
-      fetchRequests();
-    }, 500);
-    
-    return () => clearTimeout(timer);
+    return () => unsubscribe();
   }, []);
 
   if (loading) {
