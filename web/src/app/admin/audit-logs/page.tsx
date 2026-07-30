@@ -67,7 +67,7 @@ export default function AdminAuditLogsPage() {
             <tbody className="divide-y divide-slate-200 bg-white">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-slate-500">Loading audit logs...</td>
+                  <td colSpan={5} className="px-6 py-12"><LoadingSpinner /></td>
                 </tr>
               ) : logs.length === 0 ? (
                 <tr>

@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 "use client";
 
 import { useState, useEffect } from "react";
@@ -40,8 +41,7 @@ export default function AdminSchoolsRequestsPage() {
     }
   }
 
-  const handleAction = async (id: string, action: "approve" | "reject") => {
-    if (!confirm(`Are you sure you want to ${action} this request?`)) return;
+  const executeAction = async (id: string, action: "approve" | "reject") => {
     setProcessingId(id);
     try {
       const token = await auth.currentUser?.getIdToken();
@@ -50,18 +50,32 @@ export default function AdminSchoolsRequestsPage() {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
+        toast.success(`Request ${action}d successfully`);
         fetchRequests();
       } else {
-        alert(`Failed to ${action} request`);
+        toast.error(`Failed to ${action} request`);
       }
     } catch (e) {
       console.error(e);
+      toast.error(`Error processing request`);
     } finally {
       setProcessingId(null);
     }
   };
 
-  if (loading) return <div className="p-8 text-center text-slate-500">Loading requests...</div>;
+  const handleAction = (id: string, action: "approve" | "reject") => {
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <p className="font-bold text-slate-900">Are you sure you want to {action} this request?</p>
+        <div className="flex justify-end gap-2 mt-2">
+          <button className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-bold transition-colors" onClick={() => toast.dismiss(t.id)}>Cancel</button>
+          <button className={`px-4 py-2 text-white rounded-lg text-sm font-bold transition-colors ${action === 'reject' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}`} onClick={() => { toast.dismiss(t.id); executeAction(id, action); }}>Yes, {action}</button>
+        </div>
+      </div>
+    ), { duration: Infinity });
+  };
+
+  if (loading) return <LoadingSpinner />;
 
   const pendingCount = requests.filter(r => r.status === "Pending").length;
 

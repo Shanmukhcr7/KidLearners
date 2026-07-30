@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 "use client";
 
 import { useState, useEffect } from "react";
@@ -79,16 +80,15 @@ export default function AdminQuestionsPage() {
         fetchQuestions();
         setFormData({ title: "", content: "", type: "multiple_choice", difficulty: "Medium", subject: "", options: ["", "", "", ""], correctAnswer: "" });
       } else {
-        alert("Failed to save question");
+        toast.error("Failed to save question");
       }
     } catch (e) {
       console.error(e);
-      alert("Error saving question");
+      toast.error("Error saving question");
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this question?")) return;
+  const executeDelete = async (id: string) => {
     try {
       const token = await auth.currentUser?.getIdToken();
       const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + `/questions/${id}`, {
@@ -96,13 +96,27 @@ export default function AdminQuestionsPage() {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
+        toast.success("Question deleted successfully");
         fetchQuestions();
       } else {
-        alert("Cannot delete global question");
+        toast.error("Cannot delete global question");
       }
     } catch (e) {
       console.error(e);
+      toast.error("Error deleting question");
     }
+  };
+
+  const handleDelete = (id: string) => {
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <p className="font-bold text-slate-900">Are you sure you want to delete this question?</p>
+        <div className="flex justify-end gap-2 mt-2">
+          <button className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-bold transition-colors" onClick={() => toast.dismiss(t.id)}>Cancel</button>
+          <button className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold transition-colors" onClick={() => { toast.dismiss(t.id); executeDelete(id); }}>Delete</button>
+        </div>
+      </div>
+    ), { duration: Infinity });
   };
 
   const getIcon = (type: string) => {
@@ -149,7 +163,7 @@ export default function AdminQuestionsPage() {
             </thead>
             <tbody className="divide-y divide-slate-200 bg-white">
               {loading ? (
-                <tr><td colSpan={5} className="text-center py-8 text-slate-500">Loading...</td></tr>
+                <tr><td colSpan={5} className="px-6 py-12"><LoadingSpinner /></td></tr>
               ) : questions.length === 0 ? (
                 <tr><td colSpan={5} className="text-center py-8 text-slate-500">No questions found. Create one!</td></tr>
               ) : questions.map((q) => (

@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 "use client";
 
 import { Building2, Search, Plus, MoreVertical, Edit2, ShieldAlert, X } from "lucide-react";
@@ -51,16 +52,16 @@ export default function AdminSchoolsPage() {
       
       if (res.ok) {
         const data = await res.json();
-        alert(`School ${data.school.name} created! Admin assigned: ${data.adminAssigned ? "Yes" : "No"}`);
+        toast.success(`School ${data.school.name} created! Admin assigned: ${data.adminAssigned ? "Yes" : "No"}`);
         setShowModal(false);
         // Simply reload to fetch again
         window.location.reload();
       } else {
-        alert("Failed to create school.");
+        toast.error("Failed to create school.");
       }
     } catch (err) {
       console.error(err);
-      alert("Error creating school.");
+      toast.error("Error creating school.");
     }
   };
 

@@ -105,7 +105,7 @@ export default function SchoolStudentsPage() {
             <tbody className="divide-y divide-slate-200 bg-white">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-slate-500">Loading directory...</td>
+                  <td colSpan={5} className="px-6 py-12"><LoadingSpinner /></td>
                 </tr>
               ) : filteredStudents.length === 0 ? (
                 <tr>

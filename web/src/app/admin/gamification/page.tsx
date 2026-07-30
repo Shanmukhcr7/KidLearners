@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 "use client";
 
 import { useState, useEffect } from "react";
@@ -66,7 +67,7 @@ export default function AdminGamificationPage() {
         },
         body: JSON.stringify(settings)
       });
-      if (res.ok) alert("Settings updated!");
+      if (res.ok) toast.success("Settings updated!");
     } catch (e) {
       console.error(e);
     } finally {

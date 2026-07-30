@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 "use client";
 
 import { Users, Search, Edit2 } from "lucide-react";
@@ -44,13 +45,13 @@ export default function AdminUsersPage() {
       });
       if (res.ok) {
         setUsers(users.map(u => u.id === uid ? { ...u, role: newRole } : u));
-        alert("Role updated successfully! Note: The user may need to re-login to see changes.");
+        toast.success("Role updated successfully! Note: The user may need to re-login to see changes.");
       } else {
-        alert("Failed to update role");
+        toast.error("Failed to update role");
       }
     } catch (err) {
       console.error(err);
-      alert("Error updating role");
+      toast.error("Error updating role");
     }
   };
 
@@ -90,7 +91,7 @@ export default function AdminUsersPage() {
             </thead>
             <tbody className="divide-y divide-slate-200 bg-white">
               {loading ? (
-                <tr><td colSpan={4} className="text-center py-8 text-slate-500">Loading users...</td></tr>
+                <tr><td colSpan={4} className="px-6 py-12"><LoadingSpinner /></td></tr>
               ) : users.length === 0 ? (
                 <tr><td colSpan={4} className="text-center py-8 text-slate-500">No users found.</td></tr>
               ) : (
@@ -141,7 +142,7 @@ export default function AdminUsersPage() {
         {/* Mobile Cards View */}
         <div className="md:hidden flex flex-col divide-y divide-slate-200">
           {loading ? (
-            <div className="text-center py-8 text-slate-500">Loading users...</div>
+            <LoadingSpinner />
           ) : users.length === 0 ? (
             <div className="text-center py-8 text-slate-500">No users found.</div>
           ) : (

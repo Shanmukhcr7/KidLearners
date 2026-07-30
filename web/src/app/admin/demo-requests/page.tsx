@@ -36,7 +36,7 @@ export default function DemoRequestsPage() {
   }, []);
 
   if (loading) {
-    return <div className="p-8 text-slate-500">Loading demo requests...</div>;
+    return <LoadingSpinner />;
   }
 
   return (

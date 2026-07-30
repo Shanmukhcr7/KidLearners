@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 "use client";
 
 import { useState, useEffect } from "react";
@@ -64,11 +65,11 @@ export default function AddStudentsPage() {
         body: JSON.stringify({ email: selectedUser.email })
       });
       if (res.ok) {
-        alert("Invite sent successfully!");
+        toast.success("Invite sent successfully!");
         setQuery("");
         setSelectedUser(null);
       } else {
-        alert("Failed to send invite.");
+        toast.error("Failed to send invite.");
       }
     } catch (e) {
       console.error(e);
@@ -95,7 +96,7 @@ export default function AddStudentsPage() {
       }
     } catch (e) {
       console.error(e);
-      alert("Error generating link.");
+      toast.error("Error generating link.");
     } finally {
       setGenerating(false);
     }

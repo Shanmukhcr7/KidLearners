@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 "use client";
 
 import { useEffect, useState } from "react";
@@ -53,7 +54,7 @@ export default function AdminTasksPage() {
         setIsModalOpen(false);
         fetchTasks();
       } else {
-        alert("Failed to create task");
+        toast.error("Failed to create task");
       }
     } catch (error) {
       console.error("Error creating task:", error);
@@ -105,7 +106,7 @@ export default function AdminTasksPage() {
             <tbody className="divide-y divide-slate-200 bg-white">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-slate-500">Loading tasks...</td>
+                  <td colSpan={5} className="px-6 py-12"><LoadingSpinner /></td>
                 </tr>
               ) : tasks.length === 0 ? (
                 <tr>

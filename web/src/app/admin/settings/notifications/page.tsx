@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 "use client";
 
 import { useState, useEffect } from "react";
@@ -48,7 +49,7 @@ export default function AdminNotificationsSettingsPage() {
         },
         body: JSON.stringify(settings)
       });
-      alert("Notification settings saved!");
+      toast.success("Notification settings saved!");
     } catch (e) {
       console.error(e);
     } finally {

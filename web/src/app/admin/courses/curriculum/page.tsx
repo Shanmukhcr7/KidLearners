@@ -127,7 +127,7 @@ export default function AdminCoursesCurriculumPage() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center">Loading...</div>;
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="space-y-6">

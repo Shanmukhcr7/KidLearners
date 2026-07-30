@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 "use client";
 
 import { useState } from "react";
@@ -14,7 +15,7 @@ export default function AdminSecurityPage() {
   });
 
   const handleSave = () => {
-    alert("Global security settings updated successfully!");
+    toast.success("Global security settings updated successfully!");
   };
 
   return (

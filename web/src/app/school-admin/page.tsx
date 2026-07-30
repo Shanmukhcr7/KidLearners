@@ -117,7 +117,7 @@ export default function SchoolAdminDashboard() {
           <h3 className="text-lg font-bold text-slate-900 mb-4">Recent Leaderboard Top Performers</h3>
           <div className="space-y-4">
              {loading ? (
-               <div className="text-sm text-slate-500">Loading top performers...</div>
+               <LoadingSpinner />
              ) : leaderboard.length === 0 ? (
                <div className="text-sm text-slate-500">No students have earned XP yet.</div>
              ) : (

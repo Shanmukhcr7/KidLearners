@@ -64,7 +64,7 @@ export default function SchoolLeaderboardsPage() {
             <tbody className="divide-y divide-slate-200 bg-white">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-slate-500">Loading leaderboards...</td>
+                  <td colSpan={4} className="px-6 py-12"><LoadingSpinner /></td>
                 </tr>
               ) : leaderboard.length === 0 ? (
                 <tr>

@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 "use client";
 
 import { useState, useEffect } from "react";
@@ -47,7 +48,7 @@ export default function AdminRolesSettingsPage() {
         },
         body: JSON.stringify(settings)
       });
-      alert("Role settings saved!");
+      toast.success("Role settings saved!");
     } catch (e) {
       console.error(e);
     } finally {

@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 "use client";
 
 import { useState, useEffect } from "react";
@@ -47,7 +48,7 @@ export default function AdminAISettingsPage() {
         },
         body: JSON.stringify(settings)
       });
-      alert("AI settings saved!");
+      toast.success("AI settings saved!");
     } catch (e) {
       console.error(e);
     } finally {

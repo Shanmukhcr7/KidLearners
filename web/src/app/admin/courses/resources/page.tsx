@@ -35,7 +35,7 @@ export default function AdminCoursesResourcesPage() {
   // In a real implementation, this would fetch resources from the Files API filtered by courseId
   // For now, we show a beautiful empty state as the generic Files module handles actual uploads
   
-  if (loading) return <div className="p-8 text-center">Loading...</div>;
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="space-y-6">

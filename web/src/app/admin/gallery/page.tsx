@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 "use client";
 
 import { useState, useEffect } from "react";
@@ -53,19 +54,17 @@ export default function SuperAdminGallery() {
         setSelectedFile(null);
         await fetchImages();
       } else {
-        alert("Upload failed.");
+        toast.error("Upload failed.");
       }
     } catch (error) {
       console.error("Upload error", error);
-      alert("Error uploading image");
+      toast.error("Error uploading image");
     } finally {
       setUploading(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this image?")) return;
-    
+  const executeDelete = async (id: string) => {
     try {
       const user = auth.currentUser;
       const token = await user?.getIdToken();
@@ -78,13 +77,26 @@ export default function SuperAdminGallery() {
       });
 
       if (res.ok) {
+        toast.success("Image deleted successfully");
         setImages(images.filter(img => img.id !== id));
       } else {
-        alert("Failed to delete image.");
+        toast.error("Failed to delete image.");
       }
     } catch (error) {
       console.error("Delete error", error);
     }
+  };
+
+  const handleDelete = (id: string) => {
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <p className="font-bold text-slate-900">Are you sure you want to delete this image?</p>
+        <div className="flex justify-end gap-2 mt-2">
+          <button className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-bold transition-colors" onClick={() => toast.dismiss(t.id)}>Cancel</button>
+          <button className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold transition-colors" onClick={() => { toast.dismiss(t.id); executeDelete(id); }}>Delete</button>
+        </div>
+      </div>
+    ), { duration: Infinity });
   };
 
   return (

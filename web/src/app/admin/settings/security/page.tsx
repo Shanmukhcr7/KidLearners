@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 "use client";
 
 import { useState, useEffect } from "react";
@@ -47,7 +48,7 @@ export default function AdminSecuritySettingsPage() {
         },
         body: JSON.stringify(settings)
       });
-      alert("Security settings saved!");
+      toast.success("Security settings saved!");
     } catch (e) {
       console.error(e);
     } finally {

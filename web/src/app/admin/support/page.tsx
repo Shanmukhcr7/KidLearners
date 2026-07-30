@@ -135,7 +135,7 @@ export default function AdminSupportPage() {
           
           <div className="flex-1 overflow-y-auto">
             {loading ? (
-              <div className="p-4 text-center text-slate-500">Loading tickets...</div>
+              <LoadingSpinner />
             ) : filteredTickets.length === 0 ? (
               <div className="p-4 text-center text-slate-500">No tickets found.</div>
             ) : (

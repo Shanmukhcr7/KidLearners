@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 "use client";
 
 import { useEffect, useState } from "react";
@@ -57,7 +58,7 @@ export default function AdminExamsPage() {
         setIsModalOpen(false);
         fetchExams();
       } else {
-        alert("Failed to create exam");
+        toast.error("Failed to create exam");
       }
     } catch (error) {
       console.error("Error creating exam:", error);
@@ -109,7 +110,7 @@ export default function AdminExamsPage() {
             <tbody className="divide-y divide-slate-200 bg-white">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-slate-500">Loading exams...</td>
+                  <td colSpan={5} className="px-6 py-12"><LoadingSpinner /></td>
                 </tr>
               ) : exams.length === 0 ? (
                 <tr>
