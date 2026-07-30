@@ -12,29 +12,53 @@ export class UsersService {
       
       const doc = await userRef.get();
       if (!doc.exists) {
-        // Create new user with default 'user' role
+        // Create new user with default 'user' role or school_admin if email matches a school
+        const schoolsSnap = await db.collection('schools').where('adminEmail', '==', email).get();
+        let role = 'user';
+        let schoolId = null;
+        if (!schoolsSnap.empty) {
+          role = 'school_admin';
+          schoolId = schoolsSnap.docs[0].id;
+        }
+
         await userRef.set({
           email,
           name,
-          role: 'user', // default role
+          role,
           xp: 0,
           level: 1,
-          schoolId: null, // assigned later via invite
+          schoolId,
           createdAt: new Date(),
         });
-        return { role: 'user', isNew: true };
+        
+        const auth = this.firebaseService.getAuth();
+        const claims: any = { role };
+        if (schoolId) claims.schoolId = schoolId;
+        await auth.setCustomUserClaims(uid, claims);
+
+        return { role, isNew: true };
       }
+      
       // Return existing user data
       const userData = doc.data();
-      const dbRole = userData?.role;
-      const dbSchoolId = userData?.schoolId;
+      let dbRole = userData?.role;
+      let dbSchoolId = userData?.schoolId;
+      
+      // DB auto-heal: If school_admin but no schoolId, find it
+      if (dbRole === 'school_admin' && !dbSchoolId) {
+        const schoolsSnap = await db.collection('schools').where('adminEmail', '==', email).get();
+        if (!schoolsSnap.empty) {
+          dbSchoolId = schoolsSnap.docs[0].id;
+          await userRef.update({ schoolId: dbSchoolId });
+        }
+      }
       
       const claims: any = { role: dbRole };
       if (dbSchoolId) {
         claims.schoolId = dbSchoolId;
       }
       
-      // Ensure Firebase Auth custom claims match the database (crucial for manual DB edits)
+      // Ensure Firebase Auth custom claims match the database
       const auth = this.firebaseService.getAuth();
       await auth.setCustomUserClaims(uid, claims);
       
