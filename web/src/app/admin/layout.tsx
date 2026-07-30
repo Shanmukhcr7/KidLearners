@@ -46,7 +46,8 @@ export default function SuperAdminLayout({
                 <div className="px-3 mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">School Management</div>
                 <div className="space-y-1">
                   <NavItem href="/admin/schools" icon={<Building2 size={18} />} label="Schools" active={pathname === "/admin/schools"} />
-                  <NavItem href="/admin/schools/requests" icon={<Mail size={18} />} label="Requests" active={pathname === "/admin/schools/requests"} />
+                  <NavItem href="/admin/schools/requests" icon={<Mail size={18} />} label="Onboarding Requests" active={pathname === "/admin/schools/requests"} />
+                  <NavItem href="/admin/demo-requests" icon={<Mail size={18} />} label="Demo Requests" active={pathname === "/admin/demo-requests"} />
                   <NavItem href="/admin/schools/subscriptions" icon={<ShieldCheck size={18} />} label="Subscriptions" active={pathname === "/admin/schools/subscriptions"} />
                 </div>
               </div>

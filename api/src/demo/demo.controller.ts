@@ -15,6 +15,7 @@ export class DemoController {
   @Get()
   @UseGuards(FirebaseAuthGuard)
   async getRequests(@Request() req: any) {
-    return this.demoService.getRequests(req.user.role);
+    console.log(`[DemoController] GET /demo-requests called by user: ${req.user?.uid}, role: ${req.user?.role}`);
+    return this.demoService.getRequests(req.user?.role);
   }
 }

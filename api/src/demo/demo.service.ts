@@ -30,13 +30,19 @@ export class DemoService {
     }
     
     const db = this.firebaseService.getFirestore();
-    const snapshot = await db.collection('demo_requests').orderBy('createdAt', 'desc').get();
-    
-    const requests: any[] = [];
-    snapshot.forEach((doc: any) => {
-      requests.push({ id: doc.id, ...doc.data() });
-    });
-    
-    return requests;
+    console.log(`[DemoService] Fetching demo requests for role: ${role}`);
+    try {
+      const snapshot = await db.collection('demo_requests').orderBy('createdAt', 'desc').get();
+      
+      const requests: any[] = [];
+      snapshot.forEach((doc: any) => {
+        requests.push({ id: doc.id, ...doc.data() });
+      });
+      console.log(`[DemoService] Found ${requests.length} demo requests.`);
+      return requests;
+    } catch (e) {
+      console.error("[DemoService] Error fetching demo requests:", e);
+      throw e;
+    }
   }
 }
