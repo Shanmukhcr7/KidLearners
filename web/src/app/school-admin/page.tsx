@@ -1,4 +1,5 @@
 "use client";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 import { useEffect, useState } from "react";
 import { Users, BookOpen, Trophy, ArrowUpRight } from "lucide-react";

@@ -1,4 +1,5 @@
 "use client";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 import { useEffect, useState } from "react";
 import { Trophy, Medal, Star, ArrowUpRight } from "lucide-react";

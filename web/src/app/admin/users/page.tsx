@@ -1,4 +1,5 @@
 "use client";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { toast } from "react-hot-toast";
 
 import { Users, Search, Edit2 } from "lucide-react";
