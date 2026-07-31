@@ -45,4 +45,33 @@ export class DemoService {
       throw e;
     }
   }
+  async updateRequest(role: string, id: string, data: any) {
+    if (role !== 'super_admin') {
+      throw new UnauthorizedException('Only super admins can update demo requests');
+    }
+    
+    const db = this.firebaseService.getFirestore();
+    try {
+      await db.collection('demo_requests').doc(id).update(data);
+      return { id, message: 'Demo request updated' };
+    } catch (e) {
+      console.error("[DemoService] Error updating demo request:", e);
+      throw new Error("Failed to update demo request");
+    }
+  }
+
+  async deleteRequest(role: string, id: string) {
+    if (role !== 'super_admin') {
+      throw new UnauthorizedException('Only super admins can delete demo requests');
+    }
+    
+    const db = this.firebaseService.getFirestore();
+    try {
+      await db.collection('demo_requests').doc(id).delete();
+      return { id, message: 'Demo request deleted' };
+    } catch (e) {
+      console.error("[DemoService] Error deleting demo request:", e);
+      throw new Error("Failed to delete demo request");
+    }
+  }
 }

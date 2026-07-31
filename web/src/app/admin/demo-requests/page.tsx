@@ -3,7 +3,7 @@ import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 
 import { useEffect, useState } from "react";
 import { auth } from "@/utils/firebase";
-import { Mail, Calendar, User, Building2, ExternalLink } from "lucide-react";
+import { Mail, Calendar, User, Building2, ExternalLink, Trash2, Check } from "lucide-react";
 
 export default function DemoRequestsPage() {
   const [requests, setRequests] = useState<any[]>([]);
@@ -35,6 +35,80 @@ export default function DemoRequestsPage() {
     
     return () => unsubscribe();
   }, []);
+
+  const fetchRequests = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const token = await user.getIdToken();
+      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + "/demo-requests", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setRequests(data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleToggleStatus = async (id: string, currentStatus: string) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const token = await user.getIdToken();
+      const newStatus = currentStatus === 'pending' ? 'contacted' : 'pending';
+      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + `/demo-requests/${id}`, {
+        method: "POST",
+        headers: { 
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (res.ok) {
+        toast.success(`Marked as ${newStatus}`);
+        fetchRequests();
+      } else {
+        toast.error("Failed to update status");
+      }
+    } catch (e) {
+      toast.error("Error updating status");
+    }
+  };
+
+  const executeDelete = async (id: string) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const token = await user.getIdToken();
+      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001") + `/demo-requests/${id}/delete`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        toast.success("Request deleted");
+        fetchRequests();
+      } else {
+        toast.error("Failed to delete");
+      }
+    } catch (e) {
+      toast.error("Error deleting request");
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <p className="font-bold text-slate-900">Are you sure you want to delete this request?</p>
+        <div className="flex justify-end gap-2 mt-2">
+          <button className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-bold transition-colors" onClick={() => toast.dismiss(t.id)}>Cancel</button>
+          <button className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold transition-colors" onClick={() => { toast.dismiss(t.id); executeDelete(id); }}>Delete</button>
+        </div>
+      </div>
+    ), { duration: Infinity });
+  };
 
   if (loading) {
     return <LoadingSpinner />;
@@ -79,12 +153,30 @@ export default function DemoRequestsPage() {
                 </div>
               </div>
               
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <span className={`px-3 py-1 rounded-full text-xs font-semibold ${req.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
                   {req.status?.toUpperCase()}
                 </span>
-                <button className="px-4 py-2 bg-blue-50 text-blue-700 font-semibold rounded-lg hover:bg-blue-100 transition-colors text-sm flex items-center gap-2">
-                  Contact <ExternalLink size={14} />
+                <button 
+                  onClick={() => handleToggleStatus(req.id, req.status)}
+                  className="p-2 bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-emerald-600 rounded-lg transition-colors"
+                  title={req.status === 'pending' ? 'Mark Contacted' : 'Mark Pending'}
+                >
+                  <Check size={18} />
+                </button>
+                <a 
+                  href={`mailto:${req.email}`}
+                  className="p-2 bg-slate-50 text-slate-600 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-colors"
+                  title="Contact"
+                >
+                  <ExternalLink size={18} />
+                </a>
+                <button 
+                  onClick={() => handleDelete(req.id)}
+                  className="p-2 bg-slate-50 text-slate-600 hover:bg-red-100 hover:text-red-600 rounded-lg transition-colors"
+                  title="Delete Request"
+                >
+                  <Trash2 size={18} />
                 </button>
               </div>
             </div>
