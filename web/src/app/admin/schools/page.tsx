@@ -1,5 +1,5 @@
-import { toast } from "react-hot-toast";
 "use client";
+import { toast } from "react-hot-toast";
 
 import { Building2, Search, Plus, MoreVertical, Edit2, ShieldAlert, X } from "lucide-react";
 import { useState, useEffect } from "react";

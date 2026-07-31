@@ -1,5 +1,5 @@
-import { toast } from "react-hot-toast";
 "use client";
+import { toast } from "react-hot-toast";
 
 import { useEffect, useState } from "react";
 import { BookOpen, Plus, Search, Edit2, ShieldAlert, X } from "lucide-react";

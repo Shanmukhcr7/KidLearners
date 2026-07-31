@@ -1,5 +1,5 @@
-import { toast } from "react-hot-toast";
 "use client";
+import { toast } from "react-hot-toast";
 
 import { useState, useEffect } from "react";
 import { Trophy, Star, Target, Gift, Plus, Loader2, Save } from "lucide-react";
